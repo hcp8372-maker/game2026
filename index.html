@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>臺南社福嘉年華 - 社福知識幸運輪盤</title>
+  <style>
+    /* 基礎樣式設定 */
+    * { box-sizing: border-box; user-select: none; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
+    body { margin: 0; background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 100%); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+    
+    header { background: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
+    header h1 { margin: 0; font-size: 2rem; color: #166534; cursor: pointer; }
+    .game-stats { display: flex; gap: 30px; font-size: 1.5rem; font-weight: bold; }
+    .stat-box { background: #f3f4f6; padding: 8px 20px; border-radius: 12px; color: #1f2937; }
+    .highlight { color: #dc2626; font-size: 1.8rem; }
+    
+    main { flex: 1; display: flex; flex-direction: row; width: 100%; }
+    
+    .left-panel { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 2px dashed #cbd5e1; position: relative; padding: 20px; }
+    .wheel-container { position: relative; width: 450px; height: 450px; transition: all 0.3s; }
+    canvas#wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+    .pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #dc2626; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+    
+    .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; background: #dc2626; color: #fff; font-size: 1.8rem; font-weight: bold; border-radius: 50%; border: 6px solid #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 12; transition: transform 0.1s; }
+    .spin-btn:active:not(.disabled) { transform: translate(-50%, -50%) scale(0.9); }
+    .spin-btn.disabled { background: #9ca3af; cursor: not-allowed; transform: translate(-50%, -50%) scale(1); }
+
+    .right-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 30px; }
+    .quiz-card { background: #ffffff; width: 100%; max-width: 500px; min-height: 400px; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; }
+    .quiz-state-empty { text-align: center; color: #6b7280; font-size: 1.8rem; font-weight: bold; margin: auto; }
+    .quiz-state-active { display: none; }
+    .category-badge { display: inline-block; padding: 6px 16px; font-size: 1.2rem; font-weight: bold; color: #fff; border-radius: 30px; margin-bottom: 15px; align-self: flex-start; }
+    .question-text { font-size: 1.5rem; color: #1f2937; margin-bottom: 20px; line-height: 1.4; font-weight: bold; }
+    .options-grid { display: flex; flex-direction: column; gap: 8px; }
+    
+    .option-btn { background: #f3f4f6; border: 3px solid #e5e7eb; border-radius: 12px; padding: 12px 15px; font-size: 1.2rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; transition: all 0.2s; line-height: 1.3; }
+    .option-btn:active { background: #dbeafe; border-color: #3b82f6; }
+    .option-btn.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
+    .option-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-card { background: #fff; width: 90%; max-width: 500px; border-radius: 20px; padding: 40px; text-align: center; }
+    .modal-title { font-size: 2.2rem; margin-bottom: 20px; color: #1f2937; }
+    .final-score { font-size: 4rem; color: #ea580c; font-weight: bold; margin: 20px 0; }
+    .restart-btn { background: #2563eb; color: #fff; border: none; padding: 15px 40px; font-size: 1.5rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 20px; }
+
+    .admin-card { max-width: 600px; text-align: left; }
+    .admin-input { width: 100%; padding: 12px; font-size: 1.2rem; margin: 15px 0; border: 2px solid #cbd5e1; border-radius: 8px; }
+    .admin-btn { padding: 12px 24px; font-size: 1.2rem; font-weight: bold; cursor: pointer; background: #16a34a; color: white; border: none; border-radius: 8px; width: 100%; margin-bottom: 10px; }
+    .btn-cancel { background: #6b7280; }
+    .btn-reset { background: #dc2626; }
+
+    /* 手機版 RWD */
+    @media (max-width: 768px) {
+      header { flex-direction: column; gap: 12px; padding: 15px; text-align: center; }
+      header h1 { font-size: 1.6rem; }
+      .game-stats { gap: 15px; justify-content: center; font-size: 1.2rem; width: 100%; }
+      .stat-box { padding: 6px 15px; font-size: 1.1rem; flex: 1; }
+      main { flex-direction: column; }
+      .left-panel { border-right: none; border-bottom: 2px dashed #cbd5e1; padding: 30px 20px; }
+      .right-panel { padding: 20px; }
+      .wheel-container { width: 300px; height: 300px; }
+      .pointer { top: -15px; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #dc2626; }
+      .spin-btn { width: 80px; height: 80px; font-size: 1.5rem; }
+      .quiz-card { min-height: auto; padding: 25px 20px; }
+      .quiz-state-empty { font-size: 1.4rem; }
+      .question-text { font-size: 1.25rem; margin-bottom: 15px; }
+      .option-btn { font-size: 1.1rem; padding: 10px; }
+      .modal-card { padding: 25px; }
+      .modal-title { font-size: 1.8rem; }
+      .final-score { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="headerTitle" title="連續點擊5次開啟後台">🌟 臺南社福嘉年華</h1>
+    <div class="game-stats">
+      <div class="stat-box">得分：<span id="scoreDisplay" class="highlight">0</span></div>
+      <div class="stat-box">次數：<span id="spinsDisplay" class="highlight">3</span></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="left-panel" id="wheelSection">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="450" height="450"></canvas>
+        <div class="spin-btn" id="spinBtn">轉！</div>
+      </div>
+    </div>
+
+    <div class="right-panel" id="quizSection">
+      <div class="quiz-card">
+        <div class="quiz-state-empty" id="quizEmptyState">👈 請點擊上方「轉！」<br>開始進行遊戲</div>
+        <div class="quiz-state-active" id="quizActiveState">
+          <div class="category-badge" id="qCategory">主題</div>
+          <div class="question-text" id="qText">題目載入中...</div>
+          <div class="options-grid" id="qOptions"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="gameOverModal">
+    <div class="modal-card">
+      <div class="modal-title">🎉 遊戲結束 🎉</div>
+      <div style="font-size: 1.3rem; color: #4b5563;">您的總得分是：</div>
+      <div class="final-score"><span id="finalScoreDisplay">0</span> 分</div>
+      <button class="restart-btn" onclick="resetGame()">下一位玩家</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-card admin-card">
+      <h2>☁️ 共同協作題庫設定</h2>
+      <p style="color: #4b5563; font-size: 0.9rem;">請貼上 Google Apps Script 部署的 Web App 網址以同步雲端題庫。</p>
+      
+      <input type="text" id="gasUrlInput" class="admin-input" placeholder="https://script.google.com/macros/s/.../exec">
+      
+      <button class="admin-btn" id="syncBtn" onclick="syncFromCloud()">🔄 從雲端同步題庫</button>
+      <button class="admin-btn btn-reset" onclick="resetToDefault()">🔄 恢復為內建預設題目</button>
+      <button class="admin-btn btn-cancel" onclick="closeAdmin()">取消 / 關閉</button>
+      
+      <div id="syncStatus" style="text-align: center; margin-top: 10px; font-weight: bold; color: #2563eb;"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. 音效系統 (展開排版防呆) ---
+    let audioCtx = null;
+    
+    function initAudio() { 
+      if (!audioCtx) { 
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+      } 
+      if (audioCtx.state === 'suspended') audioCtx.resume(); 
+    }
+    
+    function playTick() { 
+      if (!audioCtx) return; 
+      const osc = audioCtx.createOscillator(); 
+      const gain = audioCtx.createGain(); 
+      osc.type = 'triangle'; 
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05); 
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime); 
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05); 
+      osc.connect(gain); 
+      gain.connect(audioCtx.destination); 
+      osc.start(); 
+      osc.stop(audioCtx.currentTime + 0.05); 
+    }
+    
+    function playWin() { 
+      if (!audioCtx) return; 
+      const notes = [523.25, 659.25, 783.99, 1046.50]; 
+      notes.forEach((freq, i) => { 
+        const osc = audioCtx.createOscillator(); 
+        const gain = audioCtx.createGain(); 
+        osc.type = 'sine'; 
+        osc.frequency.value = freq; 
+        const startTime = audioCtx.currentTime + i * 0.1; 
+        gain.gain.setValueAtTime(0.4, startTime); 
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4); 
+        osc.connect(gain); 
+        gain.connect(audioCtx.destination); 
+        osc.start(startTime); 
+        osc.stop(startTime + 0.4); 
+      }); 
+    }
+    
+    function playLose() { 
+      if (!audioCtx) return; 
+      const notes = [300, 250]; 
+      notes.forEach((freq, i) => { 
+        const osc = audioCtx.createOscillator(); 
+        const gain = audioCtx.createGain(); 
+        osc.type = 'sawtooth'; 
+        osc.frequency.value = freq; 
+        const startTime = audioCtx.currentTime + i * 0.2; 
+        gain.gain.setValueAtTime(0.2, startTime); 
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3); 
+        osc.connect(gain); 
+        gain.connect(audioCtx.destination); 
+        osc.start(startTime); 
+        osc.stop(startTime + 0.3); 
+      }); 
+    }
+
+    // --- 2. 臺南社福嘉年華最新題庫 ---
+    const defaultData = [
+      { 
+        label: "旗艦計畫", color: "#f87171", 
+        q: "請問旗艦計畫中參與的社區角色為？", 
+        options: ["領航社區與協力社區", "太空社區與地球社區", "大船社區與小船社區", "火車頭社區與火車尾社區"], 
+        ans: 0 
+      },
+      { 
+        label: "社區培力", color: "#fb923c", 
+        q: "請問當社區在推展福利服務遇到困難時，何者最不是我們可以尋求協助的單位？", 
+        options: ["社會局人團科", "社區永續培力中心", "各公所承辦", "國家太空中心"], 
+        ans: 3 
+      },
+      { 
+        label: "婦女福利", color: "#facc15", 
+        q: "請問以下何者是臺南的婦女福利服務中心？", 
+        options: ["曾文婦女福利服務中心", "南瀛婦女福利服務中心", "玉井婦女福利服務中心", "永華婦女福利服務中心", "以上皆是"], 
+        ans: 4 
+      },
+      { 
+        label: "培力中心", color: "#4ade80", 
+        q: "請問下列哪一個不是臺南市社區永續培力中心的承辦單位？", 
+        options: ["臺灣全球社會力永續發展協會", "國立臺南護理專科學校", "宇宙大聖人協會"], 
+        ans: 2 
+      },
+      { 
+        label: "社區會務", color: "#38bdf8", 
+        q: "請問下列何者「不」是社區發展協會每年必開的會議？", 
+        options: ["會員大會", "理、監事會", "跨年演唱會"], 
+        ans: 2 
+      }
+    ];
+
+    // 更換全新 Storage Key (v3)，徹底避開舊的當機紀錄
+    let gameData = defaultData;
+    let savedGasUrl = "";
+    
+    try {
+      const localData = localStorage.getItem("wheel_cloud_data_v3");
+      if (localData) {
+        const parsed = JSON.parse(localData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          gameData = parsed;
+        }
+      }
+      savedGasUrl = localStorage.getItem("wheel_gas_url_v3") || "";
+    } catch (e) {
+      console.warn("載入題庫失敗，使用預設值", e);
+    }
+
+    // --- 3. 遊戲狀態與繪圖 ---
+    let currentScore = 0; 
+    let spinsLeft = 3; 
+    let isSpinning = false; 
+    let isAnswering = false;
+    let currentAngle = 0; 
+    let lastTickSector = -1;
+    
+    const canvas = document.getElementById("wheelCanvas"); 
+    const ctx = canvas.getContext("2d");
+
+    function drawWheel() {
+      const numSectors = gameData.length; 
+      const arc = (2 * Math.PI) / numSectors; 
+      const radius = canvas.width / 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      for (let i = 0; i < numSectors; i++) {
+        const angle = currentAngle + i * arc;
+        ctx.beginPath(); 
+        ctx.fillStyle = gameData[i].color || "#9ca3af"; 
+        ctx.moveTo(radius, radius); 
+        ctx.arc(radius, radius, radius - 10, angle, angle + arc); 
+        ctx.lineTo(radius, radius); 
+        ctx.fill();
+        ctx.lineWidth = 4; 
+        ctx.strokeStyle = "#ffffff"; 
+        ctx.stroke();
+        
+        ctx.save(); 
+        ctx.translate(radius, radius); 
+        ctx.rotate(angle + arc / 2); 
+        ctx.textAlign = "right"; 
+        ctx.fillStyle = "#ffffff"; 
+        ctx.font = "bold 26px PingFang TC, sans-serif"; 
+        ctx.shadowColor = "rgba(0,0,0,0.3)"; 
+        ctx.shadowBlur = 4; 
+        ctx.fillText(gameData[i].label, radius - 40, 10); 
+        ctx.restore();
+      }
+    }
+    drawWheel();
+
+    // --- 4. 旋轉與互動邏輯 ---
+    const spinBtn = document.getElementById("spinBtn");
+    spinBtn.addEventListener("click", () => {
+      initAudio();
+      if (isSpinning || isAnswering || spinsLeft <= 0 || gameData.length === 0) return;
+      
+      isSpinning = true; 
+      spinBtn.classList.add("disabled");
+      document.getElementById("quizEmptyState").style.display = "block"; 
+      document.getElementById("quizEmptyState").innerHTML = "🎡 輪盤轉動中..."; 
+      document.getElementById("quizActiveState").style.display = "none";
+      
+      const numSectors = gameData.length; 
+      const arc = (2 * Math.PI) / numSectors;
+      const extraRounds = 5 + Math.floor(Math.random() * 3); 
+      const randomTargetSector = Math.floor(Math.random() * numSectors);
+      const targetAngle = (2 * Math.PI * extraRounds) + ((numSectors - randomTargetSector - 0.5) * arc) - (Math.PI / 2);
+      const startAngle = currentAngle % (2 * Math.PI); 
+      const totalDelta = targetAngle - startAngle;
+      
+      const duration = 3500; 
+      let startTime = null; 
+      lastTickSector = -1;
+
+      function animateSpin(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime; 
+        const progress = Math.min(elapsed / duration, 1);
+        
+        currentAngle = startAngle + totalDelta * (1 - Math.pow(1 - progress, 3)); 
+        drawWheel();
+        
+        const normalizedAngle = (2 * Math.PI - (currentAngle + Math.PI / 2) % (2 * Math.PI)) % (2 * Math.PI);
+        const currentSectorIdx = Math.floor(normalizedAngle / arc);
+        if (currentSectorIdx !== lastTickSector && elapsed > 50) { 
+          playTick(); 
+          lastTickSector = currentSectorIdx; 
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else { 
+          isSpinning = false; 
+          spinsLeft--; 
+          document.getElementById("spinsDisplay").innerText = spinsLeft; 
+          showQuestion(randomTargetSector); 
+        }
+      }
+      requestAnimationFrame(animateSpin);
+    });
+
+    function showQuestion(sectorIndex) {
+      isAnswering = true; 
+      const data = gameData[sectorIndex];
+      
+      document.getElementById("quizEmptyState").style.display = "none"; 
+      document.getElementById("quizActiveState").style.display = "block";
+      document.getElementById("qCategory").innerText = data.label; 
+      document.getElementById("qCategory").style.backgroundColor = data.color;
+      document.getElementById("qText").innerText = data.q;
+      
+      const optionsContainer = document.getElementById("qOptions"); 
+      optionsContainer.innerHTML = "";
+      
+      data.options.forEach((opt, idx) => {
+        const btn = document.createElement("button"); 
+        btn.className = "option-btn"; 
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(btn, idx, data.ans); 
+        optionsContainer.appendChild(btn);
+      });
+
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          document.getElementById("quizSection").scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+    }
+
+    function handleAnswer(clickedBtn, selectedIdx, correctIdx) {
+      initAudio();
+      const allBtns = document.querySelectorAll(".option-btn");
+      allBtns.forEach(b => b.style.pointerEvents = "none");
+      
+      if (selectedIdx === correctIdx) { 
+        clickedBtn.classList.add("correct"); 
+        currentScore += 1; 
+        document.getElementById("scoreDisplay").innerText = currentScore; 
+        playWin(); 
+      } else { 
+        clickedBtn.classList.add("wrong"); 
+        if (allBtns[correctIdx]) {
+           allBtns[correctIdx].classList.add("correct"); 
+        }
+        playLose(); 
+      }
+
+      setTimeout(() => {
+        isAnswering = false;
+        if (window.innerWidth <= 768 && spinsLeft > 0) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        if (spinsLeft > 0) { 
+          document.getElementById("quizActiveState").style.display = "none"; 
+          document.getElementById("quizEmptyState").style.display = "block"; 
+          document.getElementById("quizEmptyState").innerHTML = "👈 請繼續點擊上方「轉！」"; 
+          spinBtn.classList.remove("disabled"); 
+        } else { 
+          document.getElementById("finalScoreDisplay").innerText = currentScore; 
+          document.getElementById("gameOverModal").classList.add("active"); 
+          if (currentScore > 0) setTimeout(playWin, 300); 
+        }
+      }, 2000);
+    }
+
+    function resetGame() {
+      currentScore = 0; 
+      spinsLeft = 3; 
+      isAnswering = false; 
+      isSpinning = false;
+      document.getElementById("scoreDisplay").innerText = currentScore; 
+      document.getElementById("spinsDisplay").innerText = spinsLeft;
+      document.getElementById("gameOverModal").classList.remove("active"); 
+      document.getElementById("quizActiveState").style.display = "none"; 
+      document.getElementById("quizEmptyState").style.display = "block"; 
+      
+      document.getElementById("quizEmptyState").innerHTML = window.innerWidth <= 768 ? "👆 請點擊上方「轉！」<br>開始進行遊戲" : "👈 請點擊左側「轉！」<br>開始進行遊戲"; 
+      spinBtn.classList.remove("disabled");
+      
+      if (window.innerWidth <= 768) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // --- 5. 雲端題庫同步邏輯 ---
+    let titleClickCount = 0; 
+    let clickTimer = null;
+    
+    document.getElementById("headerTitle").addEventListener("click", () => {
+      titleClickCount++; 
+      clearTimeout(clickTimer);
+      if (titleClickCount >= 5) { 
+        document.getElementById("gasUrlInput").value = savedGasUrl; 
+        document.getElementById("adminModal").classList.add("active"); 
+        titleClickCount = 0; 
+      } else { 
+        clickTimer = setTimeout(() => { titleClickCount = 0; }, 1500); 
+      }
+    });
+
+    function closeAdmin() {
+      document.getElementById("adminModal").classList.remove("active");
+      document.getElementById("syncStatus").innerText = "";
+    }
+
+    function resetToDefault() {
+      if(confirm("確定要清除本機資料並恢復為預設題目嗎？")) {
+        localStorage.removeItem("wheel_cloud_data_v3");
+        localStorage.removeItem("wheel_gas_url_v3");
+        gameData = defaultData;
+        drawWheel();
+        resetGame();
+        closeAdmin();
+      }
+    }
+
+    async function syncFromCloud() {
+      const urlInput = document.getElementById("gasUrlInput").value.trim();
+      const statusText = document.getElementById("syncStatus");
+      
+      if (!urlInput) { 
+        statusText.style.color = "red"; 
+        statusText.innerText = "請輸入有效的 GAS 網址！"; 
+        return; 
+      }
+      
+      statusText.style.color = "#2563eb"; 
+      statusText.innerText = "🔄 正在從 Google 試算表下載題庫，請稍候...";
+      document.getElementById("syncBtn").disabled = true;
+
+      try {
+        const response = await fetch(urlInput);
+        const newData = await response.json();
+        
+        if (Array.isArray(newData) && newData.length > 0) {
+          gameData = newData;
+          savedGasUrl = urlInput;
+          localStorage.setItem("wheel_cloud_data_v3", JSON.stringify(gameData));
+          localStorage.setItem("wheel_gas_url_v3", savedGasUrl);
+          
+          drawWheel(); 
+          resetGame();
+          statusText.style.color = "green"; 
+          statusText.innerText = `✅ 同步成功！共載入 ${newData.length} 題。`;
+          setTimeout(closeAdmin, 1500);
+        } else { 
+          throw new Error("讀取成功，但試算表內無有效資料。"); 
+        }
+      } catch (error) {
+        statusText.style.color = "red"; 
+        statusText.innerText = "❌ 同步失敗，請確認網址正確或重新部署。";
+        console.error(error);
+      } finally {
+        document.getElementById("syncBtn").disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
