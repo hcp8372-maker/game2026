@@ -9,7 +9,7 @@
     body { margin: 0; background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 100%); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
     header { background: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
-    header h1 { margin: 0; font-size: 1.8rem; color: #166534; cursor: pointer; }
+    header h1 { margin: 0; font-size: 1.8rem; color: #166534; }
     .game-stats { display: flex; gap: 20px; font-size: 1.3rem; font-weight: bold; }
     .stat-box { background: #f3f4f6; padding: 6px 15px; border-radius: 12px; color: #1f2937; }
     .highlight { color: #dc2626; font-size: 1.5rem; }
@@ -40,16 +40,11 @@
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-card { background: #fff; width: 90%; max-width: 450px; border-radius: 20px; padding: 30px; text-align: center; }
     .modal-title { font-size: 2rem; margin-bottom: 15px; color: #166534; }
-    .final-score { font-size: 3rem; color: #ea580c; font-weight: bold; margin: 10px 0; }
+    .final-score { font-size: 3.5rem; color: #ea580c; font-weight: bold; margin: 15px 0; }
     .restart-btn { background: #2563eb; color: #fff; border: none; padding: 12px 30px; font-size: 1.3rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
 
     .admin-input { width: 100%; padding: 12px; font-size: 1.1rem; margin: 12px 0; border: 2px solid #cbd5e1; border-radius: 8px; }
     .admin-btn { padding: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: #16a34a; color: white; border: none; border-radius: 8px; width: 100%; margin-bottom: 8px; }
-    
-    /* 排行榜表格樣式 */
-    .leaderboard-table { width: 100%; margin: 15px 0; text-align: left; border-collapse: collapse; }
-    .leaderboard-table th, .leaderboard-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 1.1rem; }
-    .leaderboard-table th { color: #166534; }
 
     @media (max-width: 768px) {
       header { flex-direction: column; gap: 8px; padding: 10px; }
@@ -78,7 +73,7 @@
   </div>
 
   <header>
-    <h1 id="headerTitle" title="連續點擊5次開啟後台">🌟 臺南社福嘉年華</h1>
+    <h1>🌟 臺南社福嘉年華</h1>
     <div class="game-stats">
       <div class="stat-box">玩家：<span id="displayName" style="color:#2563eb;">訪客</span></div>
       <div class="stat-box">得分：<span id="scoreDisplay" class="highlight">0</span></div>
@@ -97,7 +92,7 @@
 
     <div class="right-panel" id="quizSection">
       <div class="quiz-card">
-        <div class="quiz-state-empty" id="quizEmptyState">👈 請點擊轉盤「轉！」<br>開始回答 8 題挑戰</div>
+        <div class="quiz-state-empty" id="quizEmptyState">👈 請點擊轉盤「轉！」<br>開始回答挑戰</div>
         <div class="quiz-state-active" id="quizActiveState">
           <div class="category-badge" id="qCategory">主題</div>
           <div class="question-text" id="qText">題目載入中...</div>
@@ -107,31 +102,14 @@
     </div>
   </main>
 
-  <!-- 遊戲結束與排行榜彈窗 -->
+  <!-- 遊戲結束結算彈窗 -->
   <div class="modal-overlay" id="gameOverModal">
-    <div class="modal-card" style="max-width: 500px;">
+    <div class="modal-card">
       <div class="modal-title">🎉 挑戰結算 🎉</div>
       <div style="font-size: 1.2rem; color: #4b5563;">玩家：<strong id="finalPlayerName"></strong></div>
       <div class="final-score"><span id="finalScoreDisplay">0</span> / 4 分</div>
-      
-      <h3 style="margin: 10px 0 5px 0; color: #1e3a8a; text-align: left;">🏆 英雄排行榜 TOP 5</h3>
-      <table class="leaderboard-table" id="leaderboardTable">
-        <tr><th>排名</th><th>玩家</th><th>得分</th></tr>
-        <tr><td colspan="3" style="text-align:center;">載入中...</td></tr>
-      </table>
-
-      <button class="restart-btn" onclick="location.reload()">再次挑戰 / 下一位</button>
-    </div>
-  </div>
-
-  <!-- 隱藏後台 -->
-  <div class="modal-overlay" id="adminModal">
-    <div class="modal-card" style="text-align: left;">
-      <h2>⚙️ 雲端題庫設定</h2>
-      <input type="text" id="gasUrlInput" class="admin-input" placeholder="請貼上 GAS 網址">
-      <button class="admin-btn" onclick="syncFromCloud()">🔄 同步雲端題庫</button>
-      <button class="admin-btn" style="background:#6b7280;" onclick="document.getElementById('adminModal').classList.remove('active')">關閉</button>
-      <div id="syncStatus" style="text-align: center; margin-top: 8px; font-weight: bold;"></div>
+      <p style="color: #6b7280; font-size: 1.1rem;">感謝您參與臺南社福嘉年華闖關！</p>
+      <button class="restart-btn" onclick="location.reload()">下一位玩家挑戰</button>
     </div>
   </div>
 
@@ -141,7 +119,7 @@
       const input = document.getElementById("playerNameInput").value.trim();
       if (!input) { alert("請輸入您的名字！"); return; }
       playerName = input;
-      document.getElementById("displayName.innerText" || "displayName").innerText = playerName;
+      document.getElementById("displayName").innerText = playerName;
       document.getElementById("nameModal").classList.remove("active");
     }
 
@@ -152,23 +130,111 @@
     function playWin() { if (!audioCtx) return; const notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.1; g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.3); }); }
     function playLose() { if (!audioCtx) return; const notes = [300, 250]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.2; g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.25); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.25); }); }
 
-    // 8 題預設題庫
-    const defaultData = [
-      { label: "旗艦計畫", color: "#f87171", q: "請問旗艦計畫中參與的社區角色為？", options: ["領航社區與協力社區", "太空社區與地球社區", "大船社區與小船社區", "火車頭社區與火車尾社區"], ans: 0 },
-      { label: "社區培力", color: "#fb923c", q: "請問當社區在推展福利服務遇到困難時，何者最不是我們可以尋求協助的單位？", options: ["社會局人團科", "社區永續培力中心", "各公所承辦", "國家太空中心"], ans: 3 },
-      { label: "婦女福利", color: "#facc15", q: "請問以下何者是臺南的婦女福利服務中心？", options: ["曾文婦女福利服務中心", "南瀛婦女福利服務中心", "玉井婦女福利服務中心", "永華婦女福利服務中心", "以上皆est"], ans: 4 },
-      { label: "培力承辦", color: "#4ade80", q: "請問下列哪一個不是臺南市社區永續培力中心的承辦單位？", options: ["臺灣全球社會力永續發展協會", "國立臺南護理專科學校", "宇宙大聖人協會"], ans: 2 },
-      { label: "社區會務", color: "#38bdf8", q: "請問下列何者「不」是社區發展協會每年必開的會議？", options: ["會員大會", "理、監事會", "跨年演唱會"], ans: 2 },
-      { label: "志願服務", color: "#818cf8", q: "志工服務時數累積達多少小時，可申請榮譽志工卡？", options: ["100小時", "500小時", "1000小時", "3000小時"], ans: 2 },
-      { label: "長照據點", color: "#c084fc", q: "臺南市推動的長照C級巷弄長照站主要提供什麼？", options: ["共餐、關懷訪視與健康促進", "大型住院手術", "汽車駕訓考照"], ans: 0 },
-      { label: "社會救助", color: "#f472b6", q: "民眾若逢突發重大變故導致生活陷困，可申請哪項急難救助？", options: ["急難紓困與社會救助", "出國考察補助", "買房頭期款津貼"], ans: 0 }
+    // 從 CSV 解析寫入的 8 道完整題庫
+    const gameData = [
+      {
+        "label": "旗艦計畫",
+        "color": "#f87171",
+        "q": "請問衛福部社區旗艦計畫中將參與社區分為哪兩類？",
+        "options": [
+          "火車頭社區與火車廂社區",
+          "飛機社區與飛船社區",
+          "領航社區與協力社區",
+          "太空社區與地球社區",
+          "大船社區與小船社區"
+        ],
+        "ans": 2
+      },
+      {
+        "label": "社區培力",
+        "color": "#fb923c",
+        "q": "請問當我們在推動社區發展工作遇到困難時，通常不會找誰？",
+        "options": [
+          "各公所承辦",
+          "社會局人團科",
+          "社區永續培力中心",
+          "國家太空中心"
+        ],
+        "ans": 3
+      },
+      {
+        "label": "福利服務",
+        "color": "#facc15",
+        "q": "請問以下何者是臺南的婦女福利服務中心？",
+        "options": [
+          "曾文婦女福利服務中心",
+          "南瀛婦女福利服務中心",
+          "玉井婦女福利服務中心",
+          "永華婦女福利服務中心",
+          "以上皆是"
+        ],
+        "ans": 4
+      },
+      {
+        "label": "社區培力",
+        "color": "#4ade80",
+        "q": "請問下列何者不是臺南市社區永續培力中心的承辦單位？",
+        "options": [
+          "臺灣全球社會力永續發展協會",
+          "國立臺南護理專科學校",
+          "宇宙大聖人協會"
+        ],
+        "ans": 2
+      },
+      {
+        "label": "社區會務",
+        "color": "#38bdf8",
+        "q": "請問下列何者「不」是社區發展協會每年必開的會議？",
+        "options": [
+          "會員大會",
+          "理、監事會",
+          "跨年演唱會"
+        ],
+        "ans": 2
+      },
+      {
+        "label": "旗艦計畫",
+        "color": "#818cf8",
+        "q": "請問衛福部的大旗艦計畫執行期是幾年？",
+        "options": [
+          "1年",
+          "2年",
+          "3年",
+          "4年",
+          "5年"
+        ],
+        "ans": 1
+      },
+      {
+        "label": "福利社區化",
+        "color": "#c084fc",
+        "q": "請問臺南市的「阮社區」計畫要向那個局處申請？",
+        "options": [
+          "都發局",
+          "社會局",
+          "衛生局",
+          "環保局",
+          "交通局"
+        ],
+        "ans": 1
+      },
+      {
+        "label": "培力中心",
+        "color": "#f472b6",
+        "q": "請問臺南市社區永續培力中心（溪北區）的辦公室在？",
+        "options": [
+          "飛地創新育成中心",
+          "高地創新育成中心",
+          "濕地創新育成中心",
+          "贏地創新育成中心",
+          "輸地創新育成中心"
+        ],
+        "ans": 3
+      }
     ];
 
-    let gameData = JSON.parse(localStorage.getItem("wheel_cloud_data_v8")) || defaultData;
-    let savedGasUrl = localStorage.getItem("wheel_gas_url_v8") || "";
-
     let currentScore = 0; 
-    let spinsLeft = 4; // 改為 4 次機會
+    let spinsLeft = 4; 
     let isSpinning = false; 
     let isAnswering = false;
     let currentAngle = 0; 
@@ -178,7 +244,7 @@
     const ctx = canvas.getContext("2d");
 
     function drawWheel() {
-      const numSectors = gameData.length; // 自動適應 8 等分
+      const numSectors = gameData.length; 
       const arc = (2 * Math.PI) / numSectors; 
       const radius = canvas.width / 2;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -311,82 +377,12 @@
           document.getElementById("quizEmptyState").innerHTML = "👈 請繼續點擊轉盤「轉！」"; 
           spinBtn.classList.remove("disabled"); 
         } else { 
-          // 4次機會用完，顯示結算與排行榜
           document.getElementById("finalPlayerName").innerText = playerName;
           document.getElementById("finalScoreDisplay").innerText = currentScore;
           document.getElementById("gameOverModal").classList.add("active");
           if (currentScore > 0) setTimeout(playWin, 300);
-          
-          // 嘗試上傳成績並抓取排行榜
-          uploadScoreAndFetchLeaderboard();
         }
       }, 2000);
-    }
-
-    // 上傳成績與取得排行榜
-    function uploadScoreAndFetchLeaderboard() {
-      if (!savedGasUrl) {
-        document.getElementById("leaderboardTable").innerHTML = "<tr><td colspan='3' style='text-align:center;'>未設定雲端網址，無法同步排行榜</td></tr>";
-        return;
-      }
-
-      // POST 傳送成績
-      fetch(savedGasUrl, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: playerName, score: currentScore })
-      }).then(() => {
-        // GET 抓取排行榜
-        fetch(savedGasUrl + "?action=getLeaderboard")
-          .then(res => res.json())
-          .then(data => {
-            let html = "<tr><th>排名</th><th>玩家</th><th>得分</th></tr>";
-            data.forEach((row, idx) => {
-              html += `<tr><td>第 ${idx+1} 名</td><td>${row.name}</td><td>${row.score} 分</td></tr>`;
-            });
-            document.getElementById("leaderboardTable").innerHTML = html;
-          }).catch(err => {
-            console.error(err);
-            document.getElementById("leaderboardTable").innerHTML = "<tr><td colspan='3' style='text-align:center;'>排行榜載入失敗</td></tr>";
-          });
-      });
-    }
-
-    // 後台設定
-    let titleClickCount = 0; let clickTimer = null;
-    document.getElementById("headerTitle").addEventListener("click", () => {
-      titleClickCount++; clearTimeout(clickTimer);
-      if (titleClickCount >= 5) { 
-        document.getElementById("gasUrlInput").value = savedGasUrl; 
-        document.getElementById("adminModal").classList.add("active"); 
-        titleClickCount = 0; 
-      } else { 
-        clickTimer = setTimeout(() => { titleClickCount = 0; }, 1500); 
-      }
-    });
-
-    async function syncFromCloud() {
-      const urlInput = document.getElementById("gasUrlInput").value.trim();
-      const statusText = document.getElementById("syncStatus");
-      if (!urlInput) { statusText.style.color = "red"; statusText.innerText = "請輸入 GAS 網址"; return; }
-      
-      statusText.style.color = "#2563eb"; statusText.innerText = "🔄 同步中...";
-      try {
-        const response = await fetch(urlInput);
-        const newData = await response.json();
-        if (Array.isArray(newData) && newData.length > 0) {
-          gameData = newData;
-          savedGasUrl = urlInput;
-          localStorage.setItem("wheel_cloud_data_v8", JSON.stringify(gameData));
-          localStorage.setItem("wheel_gas_url_v8", savedGasUrl);
-          drawWheel();
-          statusText.style.color = "green"; statusText.innerText = `✅ 成功載入 ${newData.length} 題！`;
-          setTimeout(() => document.getElementById("adminModal").classList.remove("active"), 1500);
-        }
-      } catch (e) {
-        statusText.style.color = "red"; statusText.innerText = "❌ 同步失敗";
-      }
     }
   </script>
 </body>
