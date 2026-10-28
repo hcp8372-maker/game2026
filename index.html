@@ -49,6 +49,11 @@
     .admin-input:focus { border-color: #16a34a; }
     .admin-btn { padding: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; background: #16a34a; color: white; border: none; border-radius: 10px; width: 100%; margin-bottom: 8px; }
 
+    /* 排行榜表格樣式 */
+    .leaderboard-table { width: 100%; margin: 10px 0; text-align: left; border-collapse: collapse; font-size: 1rem; }
+    .leaderboard-table th, .leaderboard-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
+    .leaderboard-table th { color: #166534; background: #f0fdf4; }
+
     @media (max-width: 768px) {
       header { flex-direction: column; gap: 8px; padding: 10px; }
       header h1 { font-size: 1.4rem; }
@@ -105,13 +110,18 @@
     </div>
   </main>
 
-  <!-- 遊戲結束結算彈窗 -->
+  <!-- 遊戲結束結算與排行榜彈窗 -->
   <div class="modal-overlay" id="gameOverModal">
-    <div class="modal-card">
-      <div class="modal-title">🎉 挑戰結算 🎉</div>
-      <div style="font-size: 1.2rem; color: #4b5563;">玩家：<strong id="finalPlayerName"></strong></div>
-      <div class="final-score"><span id="finalScoreDisplay">0</span> / 4 分</div>
-      <p style="color: #6b7280; font-size: 1.1rem;">感謝您參與臺南社福嘉年華闖關！</p>
+    <div class="modal-card" style="max-width: 480px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-title" style="font-size: 1.8rem; margin-bottom: 10px;">🎉 挑戰結算 🎉</div>
+      <div style="font-size: 1.1rem; color: #4b5563;">玩家：<strong id="finalPlayerName"></strong></div>
+      <div class="final-score" style="font-size: 2.5rem; margin: 5px 0;"><span id="finalScoreDisplay">0</span> / 4 分</div>
+      
+      <h3 style="margin: 12px 0 6px 0; color: #166534; text-align: left; font-size: 1.1rem;">🏆 本機英雄排行榜 (TOP 5)</h3>
+      <table class="leaderboard-table" id="leaderboardTable">
+        <tr><th>排名</th><th>玩家</th><th>得分</th></tr>
+      </table>
+
       <button class="restart-btn" onclick="location.reload()">下一位玩家挑戰</button>
     </div>
   </div>
@@ -402,13 +412,22 @@
           document.getElementById("quizEmptyState").innerHTML = "👈 請繼續點擊轉盤「轉！」"; 
           spinBtn.classList.remove("disabled"); 
         } else { 
-          document.getElementById("finalPlayerName").innerText = playerName;
-          document.getElementById("finalScoreDisplay").innerText = currentScore;
-          document.getElementById("gameOverModal").classList.add("active");
-          if (currentScore > 0) setTimeout(playWin, 300);
+          saveScoreAndShowLeaderboard();
         }
       }, 2000);
     }
-  </script>
-</body>
-</html>
+
+    // 處理本機排行榜邏輯
+    function saveScoreAndShowLeaderboard() {
+      document.getElementById("finalPlayerName").innerText = playerName;
+      document.getElementById("finalScoreDisplay").innerText = currentScore;
+
+      let leaderboard = JSON.parse(localStorage.getItem("tainan_social_leaderboard")) || [];
+      leaderboard.push({ name: playerName, score: currentScore, time: new Date().toLocaleTimeString() });
+      leaderboard.sort((a, b) => b.score - a.score);
+      leaderboard = leaderboard.slice(0, 5);
+      localStorage.setItem("tainan_social_leaderboard", JSON.stringify(leaderboard));
+
+      let tableHtml = "<tr><th>排名</th><th>玩家</th><th>得分</th></tr>";
+      leaderboard.forEach((item, index) => {
+        tableHtml += `<tr><td>第 ${index + 1} 名</td><td>${item.name}
