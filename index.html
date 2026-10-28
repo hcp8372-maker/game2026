@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>臺南社福嘉年華 - 8題幸運輪盤</title>
   <style>
-    * { box-sizing: border-box; user-select: none; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; user-select: none; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
     body { margin: 0; background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 100%); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
     header { background: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
@@ -14,7 +14,7 @@
     .stat-box { background: #f3f4f6; padding: 6px 15px; border-radius: 12px; color: #1f2937; }
     .highlight { color: #dc2626; font-size: 1.5rem; }
     
-    main { flex: 1; display: flex; flex-direction: row; width: 100%; position: relative; }
+    main { flex: 1; display: flex; flex-direction: row; width: 100%; }
     
     .left-panel { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 2px dashed #cbd5e1; position: relative; padding: 20px; }
     .wheel-container { position: relative; width: 420px; height: 420px; }
@@ -32,27 +32,19 @@
     .question-text { font-size: 1.4rem; color: #1f2937; margin-bottom: 15px; line-height: 1.4; font-weight: bold; }
     .options-grid { display: flex; flex-direction: column; gap: 8px; }
     
-    .option-btn { background: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; font-size: 1.1rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; transition: background 0.2s; }
-    .option-btn:active { background: #e5e7eb; }
+    .option-btn { background: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 1.1rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; }
     .option-btn.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
     .option-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
 
-    /* 確保彈窗層級最高且 pointer-events 正確切換 */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-card { background: #fff; width: 90%; max-width: 450px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.25); z-index: 10000; }
+    .modal-card { background: #fff; width: 90%; max-width: 450px; border-radius: 20px; padding: 30px; text-align: center; }
     .modal-title { font-size: 2rem; margin-bottom: 15px; color: #166534; }
     .final-score { font-size: 3.5rem; color: #ea580c; font-weight: bold; margin: 15px 0; }
     .restart-btn { background: #2563eb; color: #fff; border: none; padding: 12px 30px; font-size: 1.3rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
 
-    .admin-input { width: 100%; padding: 14px; font-size: 1.2rem; margin: 15px 0; border: 2px solid #cbd5e1; border-radius: 10px; outline: none; }
-    .admin-input:focus { border-color: #16a34a; }
-    .admin-btn { padding: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; background: #16a34a; color: white; border: none; border-radius: 10px; width: 100%; margin-bottom: 8px; }
-
-    /* 排行榜表格樣式 */
-    .leaderboard-table { width: 100%; margin: 10px 0; text-align: left; border-collapse: collapse; font-size: 1rem; }
-    .leaderboard-table th, .leaderboard-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
-    .leaderboard-table th { color: #166534; background: #f0fdf4; }
+    .admin-input { width: 100%; padding: 12px; font-size: 1.1rem; margin: 12px 0; border: 2px solid #cbd5e1; border-radius: 8px; }
+    .admin-btn { padding: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: #16a34a; color: white; border: none; border-radius: 8px; width: 100%; margin-bottom: 8px; }
 
     @media (max-width: 768px) {
       header { flex-direction: column; gap: 8px; padding: 10px; }
@@ -64,7 +56,7 @@
       .spin-btn { width: 75px; height: 75px; font-size: 1.3rem; }
       .quiz-card { padding: 20px; min-height: auto; }
       .question-text { font-size: 1.15rem; }
-      .option-btn { font-size: 1rem; padding: 12px; }
+      .option-btn { font-size: 1rem; padding: 10px; }
     }
   </style>
 </head>
@@ -74,8 +66,8 @@
   <div class="modal-overlay active" id="nameModal">
     <div class="modal-card">
       <div class="modal-title">🌟 歡迎參加挑戰 🌟</div>
-      <p style="color: #4b5563; font-size: 1.1rem;">請輸入您的稱呼或姓名以開始遊戲：</p>
-      <input type="text" id="playerNameInput" class="admin-input" placeholder="例如：臺南志工小美" maxlength="15" autocomplete="off">
+      <p style="color: #4b5563;">請輸入您的稱呼或姓名以開始遊戲：</p>
+      <input type="text" id="playerNameInput" class="admin-input" placeholder="例如：臺南志工小美" maxlength="15">
       <button class="admin-btn" onclick="startGame()">開始闖關！</button>
     </div>
   </div>
@@ -110,18 +102,13 @@
     </div>
   </main>
 
-  <!-- 遊戲結束結算與排行榜彈窗 -->
+  <!-- 遊戲結束結算彈窗 -->
   <div class="modal-overlay" id="gameOverModal">
-    <div class="modal-card" style="max-width: 480px; max-height: 90vh; overflow-y: auto;">
-      <div class="modal-title" style="font-size: 1.8rem; margin-bottom: 10px;">🎉 挑戰結算 🎉</div>
-      <div style="font-size: 1.1rem; color: #4b5563;">玩家：<strong id="finalPlayerName"></strong></div>
-      <div class="final-score" style="font-size: 2.5rem; margin: 5px 0;"><span id="finalScoreDisplay">0</span> / 4 分</div>
-      
-      <h3 style="margin: 12px 0 6px 0; color: #166534; text-align: left; font-size: 1.1rem;">🏆 本機英雄排行榜 (TOP 5)</h3>
-      <table class="leaderboard-table" id="leaderboardTable">
-        <tr><th>排名</th><th>玩家</th><th>得分</th></tr>
-      </table>
-
+    <div class="modal-card">
+      <div class="modal-title">🎉 挑戰結算 🎉</div>
+      <div style="font-size: 1.2rem; color: #4b5563;">玩家：<strong id="finalPlayerName"></strong></div>
+      <div class="final-score"><span id="finalScoreDisplay">0</span> / 4 分</div>
+      <p style="color: #6b7280; font-size: 1.1rem;">感謝您參與臺南社福嘉年華闖關！</p>
       <button class="restart-btn" onclick="location.reload()">下一位玩家挑戰</button>
     </div>
   </div>
@@ -129,24 +116,12 @@
   <script>
     let playerName = "";
     function startGame() {
-      const inputElem = document.getElementById("playerNameInput");
-      const inputVal = inputElem.value.trim();
-      if (!inputVal) { 
-        alert("請輸入您的名字！"); 
-        inputElem.focus();
-        return; 
-      }
-      playerName = inputVal;
+      const input = document.getElementById("playerNameInput").value.trim();
+      if (!input) { alert("請輸入您的名字！"); return; }
+      playerName = input;
       document.getElementById("displayName").innerText = playerName;
       document.getElementById("nameModal").classList.remove("active");
     }
-
-    // 支援按下 Enter 鍵直接開始
-    document.getElementById("playerNameInput").addEventListener("keypress", function(e) {
-      if (e.key === 'Enter') {
-        startGame();
-      }
-    });
 
     // 音效系統
     let audioCtx = null;
@@ -155,7 +130,7 @@
     function playWin() { if (!audioCtx) return; const notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.1; g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.3); }); }
     function playLose() { if (!audioCtx) return; const notes = [300, 250]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.2; g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.25); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.25); }); }
 
-    // 8 道完整題庫
+    // 從 CSV 解析寫入的 8 道完整題庫
     const gameData = [
       {
         "label": "旗艦計畫",
@@ -264,7 +239,7 @@
     let isAnswering = false;
     let currentAngle = 0; 
     let lastTickSector = -1;
-    let askedSectors = []; 
+    let askedSectors = []; // 追蹤已回答過的題目索引，確保不重複
 
     const canvas = document.getElementById("wheelCanvas"); 
     const ctx = canvas.getContext("2d");
@@ -278,6 +253,7 @@
       for (let i = 0; i < numSectors; i++) {
         const angle = currentAngle + i * arc;
         ctx.beginPath(); 
+        // 如果該題已經回答過，扇形顏色變淡以示區隔
         ctx.fillStyle = askedSectors.includes(i) ? "#d1d5db" : (gameData[i].color || "#9ca3af"); 
         ctx.moveTo(radius, radius); 
         ctx.arc(radius, radius, radius - 10, angle, angle + arc); 
@@ -315,6 +291,7 @@
       const numSectors = gameData.length; 
       const arc = (2 * Math.PI) / numSectors;
       
+      // 確保抽到「尚未回答過」的題目索引
       let randomTargetSector;
       do {
         randomTargetSector = Math.floor(Math.random() * numSectors);
@@ -351,8 +328,9 @@
           spinsLeft--; 
           document.getElementById("spinsDisplay").innerText = spinsLeft; 
           
+          // 記錄此題已回答過
           askedSectors.push(randomTargetSector);
-          drawWheel(); 
+          drawWheel(); // 更新轉盤顯示灰階已答過區塊
 
           showQuestion(randomTargetSector); 
         }
@@ -412,22 +390,13 @@
           document.getElementById("quizEmptyState").innerHTML = "👈 請繼續點擊轉盤「轉！」"; 
           spinBtn.classList.remove("disabled"); 
         } else { 
-          saveScoreAndShowLeaderboard();
+          document.getElementById("finalPlayerName").innerText = playerName;
+          document.getElementById("finalScoreDisplay").innerText = currentScore;
+          document.getElementById("gameOverModal").classList.add("active");
+          if (currentScore > 0) setTimeout(playWin, 300);
         }
       }, 2000);
     }
-
-    // 處理本機排行榜邏輯
-    function saveScoreAndShowLeaderboard() {
-      document.getElementById("finalPlayerName").innerText = playerName;
-      document.getElementById("finalScoreDisplay").innerText = currentScore;
-
-      let leaderboard = JSON.parse(localStorage.getItem("tainan_social_leaderboard")) || [];
-      leaderboard.push({ name: playerName, score: currentScore, time: new Date().toLocaleTimeString() });
-      leaderboard.sort((a, b) => b.score - a.score);
-      leaderboard = leaderboard.slice(0, 5);
-      localStorage.setItem("tainan_social_leaderboard", JSON.stringify(leaderboard));
-
-      let tableHtml = "<tr><th>排名</th><th>玩家</th><th>得分</th></tr>";
-      leaderboard.forEach((item, index) => {
-        tableHtml += `<tr><td>第 ${index + 1} 名</td><td>${item.name}
+  </script>
+</body>
+</html>
