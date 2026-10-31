@@ -82,7 +82,7 @@
     <div class="game-stats">
       <div class="stat-box">玩家：<span id="displayName" style="color:#2563eb;">訪客</span></div>
       <div class="stat-box">得分：<span id="scoreDisplay" class="highlight">0</span></div>
-      <div class="stat-box">次數：<span id="spinsDisplay" class="highlight">4</span></div>
+      <div class="stat-box">次數：<span id="spinsDisplay" class="highlight">2</span></div>
     </div>
   </header>
 
@@ -112,7 +112,7 @@
     <div class="modal-card">
       <div class="modal-title">🎉 挑戰結算 🎉</div>
       <div style="font-size: 1.1rem; color: #4b5563;">玩家：<strong id="finalPlayerName"></strong></div>
-      <div class="final-score"><span id="finalScoreDisplay">0</span> / 4 分</div>
+      <div class="final-score"><span id="finalScoreDisplay">0</span> / 2 分</div>
       
       <h3 style="margin: 12px 0 6px 0; color: #166534; text-align: left; font-size: 1.1rem;">🏆 本機英雄排行榜 (TOP 5)</h3>
       <table class="leaderboard-table" id="leaderboardTable">
@@ -244,7 +244,7 @@
     ];
 
     let currentScore = 0; 
-    let spinsLeft = 4; 
+    let spinsLeft = 2; 
     let isSpinning = false; 
     let isAnswering = false;
     let currentAngle = 0; 
@@ -400,7 +400,7 @@
           document.getElementById("quizEmptyState").innerHTML = "👈 請繼續點擊轉盤「轉！」"; 
           spinBtn.classList.remove("disabled"); 
         } else { 
-          // 4次機會用完，儲存成績並顯示本機排行榜
+          // 2次機會用完，儲存成績並顯示本機排行榜
           saveScoreAndShowLeaderboard();
         }
       }, 2000);
