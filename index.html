@@ -3,68 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>臺南社福嘉年華 - 8題幸運輪盤</title>
+  <title>臺灣全球社會力永續發展協會 - 8題幸運輪盤</title>
   <style>
     * { box-sizing: border-box; user-select: none; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 100%); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
-    header { background: #ffffff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
-    header h1 { margin: 0; font-size: 1.8rem; color: #166534; }
-    .game-stats { display: flex; gap: 20px; font-size: 1.3rem; font-weight: bold; }
-    .stat-box { background: #f3f4f6; padding: 6px 15px; border-radius: 12px; color: #1f2937; }
-    .highlight { color: #dc2626; font-size: 1.5rem; }
+    /* 標題與字體放大為兩倍 */
+    header { background: #ffffff; padding: 25px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
+    header h1 { margin: 0; font-size: 3.6rem; color: #166534; font-weight: bold; }
+    .game-stats { display: flex; gap: 30px; font-size: 2.6rem; font-weight: bold; }
+    .stat-box { background: #f3f4f6; padding: 10px 25px; border-radius: 16px; color: #1f2937; }
+    .highlight { color: #dc2626; font-size: 3rem; }
     
     main { flex: 1; display: flex; flex-direction: row; width: 100%; position: relative; }
     
     .left-panel { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 2px dashed #cbd5e1; position: relative; padding: 20px; }
-    .wheel-container { position: relative; width: 420px; height: 420px; }
+    .wheel-container { position: relative; width: 500px; height: 500px; }
     canvas#wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
-    .pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #dc2626; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+    .pointer { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-top: 50px solid #dc2626; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
     
-    .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; background: #dc2626; color: #fff; font-size: 1.6rem; font-weight: bold; border-radius: 50%; border: 6px solid #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 12; }
+    .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; background: #dc2626; color: #fff; font-size: 3rem; font-weight: bold; border-radius: 50%; border: 8px solid #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 12; }
     .spin-btn.disabled { background: #9ca3af; cursor: not-allowed; }
 
     .right-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .quiz-card { background: #ffffff; width: 100%; max-width: 500px; min-height: 380px; border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; }
-    .quiz-state-empty { text-align: center; color: #6b7280; font-size: 1.6rem; font-weight: bold; margin: auto; }
+    .quiz-card { background: #ffffff; width: 100%; max-width: 750px; min-height: 450px; border-radius: 24px; padding: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; }
+    .quiz-state-empty { text-align: center; color: #6b7280; font-size: 3.2rem; font-weight: bold; margin: auto; line-height: 1.5; }
     .quiz-state-active { display: none; }
-    .category-badge { display: inline-block; padding: 5px 14px; font-size: 1.1rem; font-weight: bold; color: #fff; border-radius: 30px; margin-bottom: 12px; align-self: flex-start; }
-    .question-text { font-size: 1.4rem; color: #1f2937; margin-bottom: 15px; line-height: 1.4; font-weight: bold; }
-    .options-grid { display: flex; flex-direction: column; gap: 8px; }
+    .category-badge { display: inline-block; padding: 8px 24px; font-size: 2.2rem; font-weight: bold; color: #fff; border-radius: 40px; margin-bottom: 20px; align-self: flex-start; }
+    .question-text { font-size: 2.8rem; color: #1f2937; margin-bottom: 25px; line-height: 1.4; font-weight: bold; }
+    .options-grid { display: flex; flex-direction: column; gap: 16px; }
     
-    .option-btn { background: #f3f4f6; border: 2px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; font-size: 1.1rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; transition: background 0.2s; }
+    .option-btn { background: #f3f4f6; border: 3px solid #e5e7eb; border-radius: 16px; padding: 20px 24px; font-size: 2.2rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; transition: background 0.2s; }
     .option-btn:active { background: #e5e7eb; }
     .option-btn.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
     .option-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
 
+    /* 答案說明區塊字體放大 */
+    .explanation-box { display: none; margin-top: 25px; padding: 25px; background-color: #f0f9ff; border-left: 8px solid #0284c7; border-radius: 12px; color: #0369a1; font-size: 2.1rem; line-height: 1.6; }
+    .next-btn { display: none; margin-top: 25px; width: 100%; padding: 20px; background-color: #16a34a; color: #ffffff; border: none; border-radius: 16px; font-size: 2.4rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .next-btn:active { background-color: #15803d; }
+
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
-    .modal-card { background: #fff; width: 90%; max-width: 450px; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
-    .modal-title { font-size: 2rem; margin-bottom: 15px; color: #166534; }
-    .final-score { font-size: 3.5rem; color: #ea580c; font-weight: bold; margin: 15px 0; }
-    .restart-btn { background: #2563eb; color: #fff; border: none; padding: 12px 30px; font-size: 1.3rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    .modal-card { background: #fff; width: 90%; max-width: 650px; border-radius: 28px; padding: 45px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
+    .modal-title { font-size: 3.8rem; margin-bottom: 25px; color: #166534; font-weight: bold; }
+    .final-banner { font-size: 3.4rem; color: #ea580c; font-weight: bold; margin: 30px 0; }
+    .restart-btn { background: #2563eb; color: #fff; border: none; padding: 20px 40px; font-size: 2.4rem; font-weight: bold; border-radius: 20px; cursor: pointer; margin-top: 20px; width: 100%; }
 
     @media (max-width: 768px) {
-      header { flex-direction: column; gap: 8px; padding: 10px; }
-      header h1 { font-size: 1.4rem; }
-      .game-stats { gap: 10px; font-size: 1.1rem; width: 100%; justify-content: center; }
+      header { flex-direction: column; gap: 12px; padding: 15px; text-align: center; }
+      header h1 { font-size: 2.2rem; }
+      .game-stats { gap: 15px; font-size: 1.6rem; width: 100%; justify-content: center; }
       main { flex-direction: column; }
       .left-panel { border-right: none; border-bottom: 2px dashed #cbd5e1; padding: 20px; }
-      .wheel-container { width: 280px; height: 280px; }
-      .spin-btn { width: 75px; height: 75px; font-size: 1.3rem; }
-      .quiz-card { padding: 20px; min-height: auto; }
-      .question-text { font-size: 1.15rem; }
-      .option-btn { font-size: 1rem; padding: 12px; }
+      .wheel-container { width: 320px; height: 320px; }
+      .spin-btn { width: 85px; height: 85px; font-size: 2rem; }
+      .quiz-card { padding: 25px; min-height: auto; }
+      .question-text { font-size: 1.8rem; }
+      .option-btn { font-size: 1.5rem; padding: 14px; }
+      .category-badge { font-size: 1.5rem; }
+      .explanation-box { font-size: 1.4rem; }
+      .next-btn { font-size: 1.6rem; padding: 14px; }
+      .modal-title { font-size: 2.4rem; }
+      .final-banner { font-size: 2.2rem; }
+      .restart-btn { font-size: 1.6rem; padding: 14px; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>🌟 臺南社福嘉年華</h1>
+    <h1>臺灣全球社會力永續發展協會</h1>
     <div class="game-stats">
-      <div class="stat-box">得分：<span id="scoreDisplay" class="highlight">0</span></div>
-      <div class="stat-box">次數：<span id="spinsDisplay" class="highlight">2</span></div>
+      <div class="stat-box">剩餘次數：<span id="spinsDisplay" class="highlight">2</span></div>
     </div>
   </header>
 
@@ -72,305 +83,11 @@
     <div class="left-panel">
       <div class="wheel-container">
         <div class="pointer"></div>
-        <canvas id="wheelCanvas" width="420" height="420"></canvas>
+        <canvas id="wheelCanvas" width="500" height="500"></canvas>
         <div class="spin-btn" id="spinBtn">轉！</div>
       </div>
     </div>
 
     <div class="right-panel" id="quizSection">
       <div class="quiz-card">
-        <div class="quiz-state-empty" id="quizEmptyState">👈 請點擊轉盤「轉！」<br>開始回答挑戰</div>
-        <div class="quiz-state-active" id="quizActiveState">
-          <div class="category-badge" id="qCategory">主題</div>
-          <div class="question-text" id="qText">題目載入中...</div>
-          <div class="options-grid" id="qOptions"></div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- 遊戲結束結算彈窗 -->
-  <div class="modal-overlay" id="gameOverModal">
-    <div class="modal-card">
-      <div class="modal-title">🎉 挑戰結算 🎉</div>
-      <div class="final-score"><span id="finalScoreDisplay">0</span> / 2 分</div>
-      <p style="color: #6b7280; font-size: 1.1rem; margin-top: 10px;">感謝您參與臺南社福嘉年華闖關！</p>
-      <button class="restart-btn" onclick="location.reload()">下一位玩家挑戰</button>
-    </div>
-  </div>
-
-  <script>
-    // 音效系統
-    let audioCtx = null;
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
-    function playTick() { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05); gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); }
-    function playWin() { if (!audioCtx) return; const notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.1; g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.3); }); }
-    function playLose() { if (!audioCtx) return; const notes = [300, 250]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.2; g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.25); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.25); }); }
-
-    // 8 道完整題庫
-    const gameData = [
-      {
-        "label": "旗艦計畫",
-        "color": "#f87171",
-        "q": "請問衛福部社區旗艦計畫中將參與社區分為哪兩類？",
-        "options": [
-          "火車頭社區與火車廂社區",
-          "飛機社區與飛船社區",
-          "領航社區與協力社區",
-          "太空社區與地球社區",
-          "大船社區與小船社區"
-        ],
-        "ans": 2
-      },
-      {
-        "label": "社區培力",
-        "color": "#fb923c",
-        "q": "請問當我們在推動社區發展工作遇到困難時，通常不會找誰？",
-        "options": [
-          "各公所承辦",
-          "社會局人團科",
-          "社區永續培力中心",
-          "國家太空中心"
-        ],
-        "ans": 3
-      },
-      {
-        "label": "福利服務",
-        "color": "#facc15",
-        "q": "請問以下何者是臺南的婦女福利服務中心？",
-        "options": [
-          "曾文婦女福利服務中心",
-          "南瀛婦女福利服務中心",
-          "玉井婦女福利服務中心",
-          "永華婦女福利服務中心",
-          "以上皆是"
-        ],
-        "ans": 4
-      },
-      {
-        "label": "社區培力",
-        "color": "#4ade80",
-        "q": "請問下列何者不是臺南市社區永續培力中心的承辦單位？",
-        "options": [
-          "臺灣全球社會力永續發展協會",
-          "國立臺南護理專科學校",
-          "宇宙大聖人協會"
-        ],
-        "ans": 2
-      },
-      {
-        "label": "社區會務",
-        "color": "#38bdf8",
-        "q": "請問下列何者「不」是社區發展協會每年必開的會議？",
-        "options": [
-          "會員大會",
-          "理、監事會",
-          "跨年演唱會"
-        ],
-        "ans": 2
-      },
-      {
-        "label": "旗艦計畫",
-        "color": "#818cf8",
-        "q": "請問衛福部的大旗艦計畫執行期是幾年？",
-        "options": [
-          "1年",
-          "2年",
-          "3年",
-          "4年",
-          "5年"
-        ],
-        "ans": 2
-      },
-      {
-        "label": "福利社區化",
-        "color": "#c084fc",
-        "q": "請問臺南市的「阮社區」計畫要向那個局處申請？",
-        "options": [
-          "都發局",
-          "社會局",
-          "衛生局",
-          "環保局",
-          "交通局"
-        ],
-        "ans": 1
-      },
-      {
-        "label": "培力中心",
-        "color": "#f472b6",
-        "q": "請問臺南市社區永續培力中心（溪北區）的辦公室在？",
-        "options": [
-          "飛地創新育成中心",
-          "高地創新育成中心",
-          "濕地創新育成中心",
-          "贏地創新育成中心",
-          "輸地創新育成中心"
-        ],
-        "ans": 3
-      }
-    ];
-
-    let currentScore = 0; 
-    let spinsLeft = 2; // 設定為 2 次機會
-    let isSpinning = false; 
-    let isAnswering = false;
-    let currentAngle = 0; 
-    let lastTickSector = -1;
-    let askedSectors = []; 
-
-    const canvas = document.getElementById("wheelCanvas"); 
-    const ctx = canvas.getContext("2d");
-
-    function drawWheel() {
-      const numSectors = gameData.length; 
-      const arc = (2 * Math.PI) / numSectors; 
-      const radius = canvas.width / 2;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      for (let i = 0; i < numSectors; i++) {
-        const angle = currentAngle + i * arc;
-        ctx.beginPath(); 
-        ctx.fillStyle = askedSectors.includes(i) ? "#d1d5db" : (gameData[i].color || "#9ca3af"); 
-        ctx.moveTo(radius, radius); 
-        ctx.arc(radius, radius, radius - 10, angle, angle + arc); 
-        ctx.lineTo(radius, radius); 
-        ctx.fill();
-        ctx.lineWidth = 3; 
-        ctx.strokeStyle = "#ffffff"; 
-        ctx.stroke();
-        
-        ctx.save(); 
-        ctx.translate(radius, radius); 
-        ctx.rotate(angle + arc / 2); 
-        ctx.textAlign = "right"; 
-        ctx.fillStyle = askedSectors.includes(i) ? "#9ca3af" : "#ffffff"; 
-        ctx.font = "bold 20px PingFang TC, sans-serif"; 
-        ctx.shadowColor = "rgba(0,0,0,0.3)"; 
-        ctx.shadowBlur = 4; 
-        ctx.fillText(gameData[i].label, radius - 35, 8); 
-        ctx.restore();
-      }
-    }
-    drawWheel();
-
-    const spinBtn = document.getElementById("spinBtn");
-    spinBtn.addEventListener("click", () => {
-      initAudio();
-      if (isSpinning || isAnswering || spinsLeft <= 0 || gameData.length === 0) return;
-      
-      isSpinning = true; 
-      spinBtn.classList.add("disabled");
-      document.getElementById("quizEmptyState").style.display = "block"; 
-      document.getElementById("quizEmptyState").innerHTML = "🎡 輪盤轉動中..."; 
-      document.getElementById("quizActiveState").style.display = "none";
-      
-      const numSectors = gameData.length; 
-      const arc = (2 * Math.PI) / numSectors;
-      
-      let randomTargetSector;
-      do {
-        randomTargetSector = Math.floor(Math.random() * numSectors);
-      } while (askedSectors.includes(randomTargetSector));
-
-      const extraRounds = 5 + Math.floor(Math.random() * 3); 
-      const targetAngle = (2 * Math.PI * extraRounds) + ((numSectors - randomTargetSector - 0.5) * arc) - (Math.PI / 2);
-      const startAngle = currentAngle % (2 * Math.PI); 
-      const totalDelta = targetAngle - startAngle;
-      
-      const duration = 3500; 
-      let startTime = null; 
-      lastTickSector = -1;
-
-      function animateSpin(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime; 
-        const progress = Math.min(elapsed / duration, 1);
-        
-        currentAngle = startAngle + totalDelta * (1 - Math.pow(1 - progress, 3)); 
-        drawWheel();
-        
-        const normalizedAngle = (2 * Math.PI - (currentAngle + Math.PI / 2) % (2 * Math.PI)) % (2 * Math.PI);
-        const currentSectorIdx = Math.floor(normalizedAngle / arc);
-        if (currentSectorIdx !== lastTickSector && elapsed > 50) { 
-          playTick(); 
-          lastTickSector = currentSectorIdx; 
-        }
-
-        if (progress < 1) {
-          requestAnimationFrame(animateSpin);
-        } else { 
-          isSpinning = false; 
-          spinsLeft--; 
-          document.getElementById("spinsDisplay").innerText = spinsLeft; 
-          
-          askedSectors.push(randomTargetSector);
-          drawWheel(); 
-
-          showQuestion(randomTargetSector); 
-        }
-      }
-      requestAnimationFrame(animateSpin);
-    });
-
-    function showQuestion(sectorIndex) {
-      isAnswering = true; 
-      const data = gameData[sectorIndex];
-      
-      document.getElementById("quizEmptyState").style.display = "none"; 
-      document.getElementById("quizActiveState").style.display = "block";
-      document.getElementById("qCategory").innerText = data.label; 
-      document.getElementById("qCategory").style.backgroundColor = data.color;
-      document.getElementById("qText").innerText = data.q;
-      
-      const optionsContainer = document.getElementById("qOptions"); 
-      optionsContainer.innerHTML = "";
-      
-      data.options.forEach((opt, idx) => {
-        const btn = document.createElement("button"); 
-        btn.className = "option-btn"; 
-        btn.innerText = opt;
-        btn.onclick = () => handleAnswer(btn, idx, data.ans); 
-        optionsContainer.appendChild(btn);
-      });
-
-      if (window.innerWidth <= 768) {
-        setTimeout(() => { document.getElementById("quizSection").scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
-      }
-    }
-
-    function handleAnswer(clickedBtn, selectedIdx, correctIdx) {
-      initAudio();
-      const allBtns = document.querySelectorAll(".option-btn");
-      allBtns.forEach(b => b.style.pointerEvents = "none");
-      
-      if (selectedIdx === correctIdx) { 
-        clickedBtn.classList.add("correct"); 
-        currentScore += 1; 
-        document.getElementById("scoreDisplay").innerText = currentScore; 
-        playWin(); 
-      } else { 
-        clickedBtn.classList.add("wrong"); 
-        if (allBtns[correctIdx]) allBtns[correctIdx].classList.add("correct"); 
-        playLose(); 
-      }
-
-      setTimeout(() => {
-        isAnswering = false;
-        if (window.innerWidth <= 768 && spinsLeft > 0) window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        if (spinsLeft > 0) { 
-          document.getElementById("quizActiveState").style.display = "none"; 
-          document.getElementById("quizEmptyState").style.display = "block"; 
-          document.getElementById("quizEmptyState").innerHTML = "👈 請繼續點擊轉盤「轉！」"; 
-          spinBtn.classList.remove("disabled"); 
-        } else { 
-          // 2 次機會用完，顯示結算視窗
-          document.getElementById("finalScoreDisplay").innerText = currentScore;
-          document.getElementById("gameOverModal").classList.add("active");
-          if (currentScore > 0) setTimeout(playWin, 300);
-        }
-      }, 2000);
-    }
-  </script>
-</body>
-</html>
+        <div class="quiz-state-empty" id="quizEmptyState">👈 請點擊轉盤「轉！」<br
