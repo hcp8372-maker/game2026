@@ -90,4 +90,281 @@
 
     <div class="right-panel" id="quizSection">
       <div class="quiz-card">
-        <div class="quiz-state-empty" id="quizEmptyState">👈 請點擊轉盤「轉！」<br
+        <div class="quiz-state-empty" id="quizEmptyState">👈 請點擊轉盤「轉！」<br>開始回答挑戰</div>
+        <div class="quiz-state-active" id="quizActiveState">
+          <div class="category-badge" id="qCategory">主題</div>
+          <div class="question-text" id="qText">題目載入中...</div>
+          <div class="options-grid" id="qOptions"></div>
+          
+          <!-- 答案說明區塊 -->
+          <div class="explanation-box" id="explanationBox">
+            💡 <strong>答題解析：</strong><br><span id="explanationText"></span>
+          </div>
+          <!-- 下一題按鈕 -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一題 ➔</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 遊戲結束結算彈窗 (顯示：遊戲結束～請抽獎～) -->
+  <div class="modal-overlay" id="gameOverModal">
+    <div class="modal-card">
+      <div class="modal-title">🎉 挑戰完成 🎉</div>
+      <div class="final-banner">遊戲結束～請抽獎～</div>
+      <button class="restart-btn" onclick="location.reload()">下一位玩家挑戰</button>
+    </div>
+  </div>
+
+  <script>
+    // 音效系統
+    let audioCtx = null;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+    function playTick() { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'triangle'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05); gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05); }
+    function playWin() { if (!audioCtx) return; const notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.1; g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.3); }); }
+    function playLose() { if (!audioCtx) return; const notes = [300, 250]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.2; g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.25); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.25); }); }
+
+    // 匯入《培力中心8題題庫.csv》完整題目與解析
+    const gameData = [
+      {
+        "label": "旗艦計畫",
+        "color": "#f87171",
+        "q": "請問衛福部福利化社區旗艦型計畫中將參與社區分為哪兩類？",
+        "options": ["火車頭社區與火車廂社區", "飛機社區與飛船社區", "領航社區與協力社區", "太空社區與地球社區", "大船社區與小船社區"],
+        "ans": 2,
+        "explanation": "輔導社區申請並執行「大旗艦」計畫是臺南市社區永續培力中心每年重要的工作項目之一。我們藉由社工與專業輔導老師的陪伴，與社區夥伴一起從共識凝聚、計畫書撰寫、計畫執行。 協助計畫中經驗豐富的「領航社區」帶領能量發展中的「協力社區」，攜手合作帶動在地福利發展！"
+      },
+      {
+        "label": "培力工作",
+        "color": "#fb923c",
+        "q": "下列何者不是臺南市社區永續培力中心的服務對象？",
+        "options": ["各區公所社區發展業務承辦人", "社會局人團科", "臺南市各社區發展協會", "國家太空中心"],
+        "ans": 3,
+        "explanation": "我們的服務工作包含舉辦社區培力課程、社區發展協會輔導、區公所社區業務承辦交流工作坊及增能工作坊等。此外也與社會局人團科配合，推動社區發展業務。"
+      },
+      {
+        "label": "福利服務",
+        "color": "#facc15",
+        "q": "請問以下何者是臺南的婦女福利服務中心？",
+        "options": ["曾文婦女福利服務中心", "南瀛婦女福利服務中心", "玉井婦女福利服務中心", "永華婦女福利服務中心", "以上皆是"],
+        "ans": 4,
+        "explanation": "為協助社區能連結多元組織，提供給社區更豐富的資源。我們也會在培力課程中介紹各類型的社福資源。例如位在贏地對面的臺南市婦女福利服務中心就是我們的合作好夥伴之一。"
+      },
+      {
+        "label": "社區培力",
+        "color": "#4ade80",
+        "q": "請問下列何者是臺南市社區永續培力中心的承辦單位？",
+        "options": ["臺灣全球社會力永續發展協會", "地球大聖人協會", "宇宙大聖人協會"],
+        "ans": 0,
+        "explanation": "115年度起臺南市社區永續培力中心（溪北區）是由「臺灣全球社會力永續發展協會」接受委託辦理。。臺南市社會局將「臺南市社區永續培力中心」分為溪北與溪南兩區，讓溪北地區的社區發展協會能夠就近使用輔導資源。使培力中心的服務更在地。"
+      },
+      {
+        "label": "社區會務",
+        "color": "#38bdf8",
+        "q": "請問下列何者「不」是社區發展協會每年必開的會議？",
+        "options": ["會員大會", "理、監事會", "跨年演唱會"],
+        "ans": 2,
+        "explanation": "協助社區發展協會的會務運作是本中心的重要工作之一。依據社區發展協會組織法規，每年必須定期召開「會員大會」與「理、監事會議」來維繫健全會務。"
+      },
+      {
+        "label": "福利社區化",
+        "color": "#818cf8",
+        "q": "請問下列哪一區「不是」臺南市社區永續培力中心（溪北區）的服務區域",
+        "options": ["新營區", "白河區", "學甲區", "七股區", "大安區"],
+        "ans": 4,
+        "explanation": "臺南市社區永續培力中心（溪北區）的服務區域主要為臺南市溪北的17個行政區。年度會針對溪北區的各社區發展協會舉辦多場培力課程。為促進臺南市社區發展與培力，課程也歡迎溪南地區的各社區發展協會共同參與。"
+      },
+      {
+        "label": "培力中心介紹",
+        "color": "#c084fc",
+        "q": "請問臺南市社區永續培力中心（溪北區）的辦公室在？",
+        "options": ["飛地創新育成中心", "高地創新育成中心", "濕地創新育成中心", "贏地創新育成中心", "輸地創新育成中心"],
+        "ans": 3,
+        "explanation": "臺南市社區永續培力中心（溪北區）的辦公室於115年度起進駐「贏地創新育成中心」。贏地創新育成中心有著便利的交通與設備齊全的活動空間，方便溪北區的各社區夥伴參加培力課程。我們也期待社區夥伴到此上課時，能藉此更認識這個空間與資源。"
+      },
+      {
+        "label": "培力中心介紹",
+        "color": "#f472b6",
+        "q": "請問臺南市社區永續培力中心（溪北區）的工作人員有幾位？",
+        "options": ["3位", "30位", "300位"],
+        "ans": 0,
+        "explanation": "本中心編制有專職1位督導、2位社工。"
+      }
+    ];
+
+    let currentScore = 0; 
+    let spinsLeft = 2; // 2 次答題機會
+    let isSpinning = false; 
+    let isAnswering = false;
+    let currentAngle = 0; 
+    let lastTickSector = -1;
+    let askedSectors = []; 
+
+    const canvas = document.getElementById("wheelCanvas"); 
+    const ctx = canvas.getContext("2d");
+
+    function drawWheel() {
+      const numSectors = gameData.length; 
+      const arc = (2 * Math.PI) / numSectors; 
+      const radius = canvas.width / 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      for (let i = 0; i < numSectors; i++) {
+        const angle = currentAngle + i * arc;
+        ctx.beginPath(); 
+        ctx.fillStyle = askedSectors.includes(i) ? "#d1d5db" : (gameData[i].color || "#9ca3af"); 
+        ctx.moveTo(radius, radius); 
+        ctx.arc(radius, radius, radius - 10, angle, angle + arc); 
+        ctx.lineTo(radius, radius); 
+        ctx.fill();
+        ctx.lineWidth = 3; 
+        ctx.strokeStyle = "#ffffff"; 
+        ctx.stroke();
+        
+        ctx.save(); 
+        ctx.translate(radius, radius); 
+        ctx.rotate(angle + arc / 2); 
+        ctx.textAlign = "right"; 
+        ctx.fillStyle = askedSectors.includes(i) ? "#9ca3af" : "#ffffff"; 
+        ctx.font = "bold 24px PingFang TC, sans-serif"; 
+        ctx.shadowColor = "rgba(0,0,0,0.3)"; 
+        ctx.shadowBlur = 4; 
+        ctx.fillText(gameData[i].label, radius - 40, 8); 
+        ctx.restore();
+      }
+    }
+    drawWheel();
+
+    const spinBtn = document.getElementById("spinBtn");
+    spinBtn.addEventListener("click", () => {
+      initAudio();
+      if (isSpinning || isAnswering || spinsLeft <= 0 || gameData.length === 0) return;
+      
+      isSpinning = true; 
+      spinBtn.classList.add("disabled");
+      document.getElementById("quizEmptyState").style.display = "block"; 
+      document.getElementById("quizEmptyState").innerHTML = "🎡 輪盤轉動中..."; 
+      document.getElementById("quizActiveState").style.display = "none";
+      
+      document.getElementById("explanationBox").style.display = "none";
+      document.getElementById("nextBtn").style.display = "none";
+
+      const numSectors = gameData.length; 
+      const arc = (2 * Math.PI) / numSectors;
+      
+      let randomTargetSector;
+      do {
+        randomTargetSector = Math.floor(Math.random() * numSectors);
+      } while (askedSectors.includes(randomTargetSector));
+
+      const extraRounds = 5 + Math.floor(Math.random() * 3); 
+      const targetAngle = (2 * Math.PI * extraRounds) + ((numSectors - randomTargetSector - 0.5) * arc) - (Math.PI / 2);
+      const startAngle = currentAngle % (2 * Math.PI); 
+      const totalDelta = targetAngle - startAngle;
+      
+      const duration = 3500; 
+      let startTime = null; 
+      lastTickSector = -1;
+
+      function animateSpin(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime; 
+        const progress = Math.min(elapsed / duration, 1);
+        
+        currentAngle = startAngle + totalDelta * (1 - Math.pow(1 - progress, 3)); 
+        drawWheel();
+        
+        const normalizedAngle = (2 * Math.PI - (currentAngle + Math.PI / 2) % (2 * Math.PI)) % (2 * Math.PI);
+        const currentSectorIdx = Math.floor(normalizedAngle / arc);
+        if (currentSectorIdx !== lastTickSector && elapsed > 50) { 
+          playTick(); 
+          lastTickSector = currentSectorIdx; 
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else { 
+          isSpinning = false; 
+          spinsLeft--; 
+          document.getElementById("spinsDisplay").innerText = spinsLeft; 
+          
+          askedSectors.push(randomTargetSector);
+          drawWheel(); 
+
+          showQuestion(randomTargetSector); 
+        }
+      }
+      requestAnimationFrame(animateSpin);
+    });
+
+    function showQuestion(sectorIndex) {
+      isAnswering = true; 
+      const data = gameData[sectorIndex];
+      
+      document.getElementById("quizEmptyState").style.display = "none"; 
+      document.getElementById("quizActiveState").style.display = "block";
+      document.getElementById("qCategory").innerText = data.label; 
+      document.getElementById("qCategory").style.backgroundColor = data.color;
+      document.getElementById("qText").innerText = data.q;
+      
+      document.getElementById("explanationText").innerText = data.explanation || "無說明";
+      document.getElementById("explanationBox").style.display = "none";
+      document.getElementById("nextBtn").style.display = "none";
+
+      const optionsContainer = document.getElementById("qOptions"); 
+      optionsContainer.innerHTML = "";
+      
+      data.options.forEach((opt, idx) => {
+        const btn = document.createElement("button"); 
+        btn.className = "option-btn"; 
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(btn, idx, data.ans); 
+        optionsContainer.appendChild(btn);
+      });
+
+      if (window.innerWidth <= 768) {
+        setTimeout(() => { document.getElementById("quizSection").scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+      }
+    }
+
+    function handleAnswer(clickedBtn, selectedIdx, correctIdx) {
+      initAudio();
+      const allBtns = document.querySelectorAll(".option-btn");
+      allBtns.forEach(b => b.style.pointerEvents = "none");
+      
+      if (selectedIdx === correctIdx) { 
+        clickedBtn.classList.add("correct"); 
+        currentScore += 1; 
+        playWin(); 
+      } else { 
+        clickedBtn.classList.add("wrong"); 
+        if (allBtns[correctIdx]) allBtns[correctIdx].classList.add("correct"); 
+        playLose(); 
+      }
+
+      document.getElementById("explanationBox").style.display = "block";
+      document.getElementById("nextBtn").style.display = "block";
+
+      if (window.innerWidth <= 768) {
+        setTimeout(() => { document.getElementById("nextBtn").scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 200);
+      }
+    }
+
+    function nextQuestion() {
+      isAnswering = false;
+      if (window.innerWidth <= 768) window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (spinsLeft > 0) { 
+        document.getElementById("quizActiveState").style.display = "none"; 
+        document.getElementById("quizEmptyState").style.display = "block"; 
+        document.getElementById("quizEmptyState").innerHTML = "👈 請繼續點擊轉盤「轉！」"; 
+        spinBtn.classList.remove("disabled"); 
+      } else { 
+        // 2 次機會用完，彈出「遊戲結束～請抽獎～」
+        document.getElementById("gameOverModal").classList.add("active");
+        setTimeout(playWin, 300);
+      }
+    }
+  </script>
+</body>
+</html>
