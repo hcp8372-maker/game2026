@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>臺灣全球社會力永續發展協會 - 8題幸運輪盤</title>
+  <title>臺灣全球社會力永續發展協會 - 幸運輪盤</title>
   <style>
     * { box-sizing: border-box; user-select: none; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 100%); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
@@ -32,17 +32,17 @@
     .quiz-state-active { display: none; }
     .category-badge { display: inline-block; padding: 5px 15px; font-size: 1.32rem; font-weight: bold; color: #fff; border-radius: 35px; margin-bottom: 14px; align-self: flex-start; }
     
-    /* 題目文字：原 2.1rem * 0.8 = 1.68rem */
+    /* 題目文字 */
     .question-text { font-size: 1.68rem; color: #1f2937; margin-bottom: 16px; line-height: 1.4; font-weight: bold; }
     .options-grid { display: flex; flex-direction: column; gap: 10px; }
     
-    /* 選項按鈕：原 1.65rem * 0.8 = 1.32rem */
+    /* 選項按鈕 */
     .option-btn { background: #f3f4f6; border: 2.5px solid #e5e7eb; border-radius: 12px; font-size: 1.32rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; padding: 12px 15px; transition: background 0.2s; }
     .option-btn:active { background: #e5e7eb; }
     .option-btn.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
     .option-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
 
-    /* 說明區塊：原 1.6rem * 0.8 = 1.28rem */
+    /* 說明區塊（已移除標題文字） */
     .explanation-box { display: none; margin-top: 16px; padding: 16px; background-color: #f0f9ff; border-left: 5px solid #0284c7; border-radius: 10px; color: #0369a1; font-size: 1.28rem; line-height: 1.5; }
     .next-btn { display: none; margin-top: 16px; width: 100%; padding: 14px; background-color: #16a34a; color: #ffffff; border: none; border-radius: 12px; font-size: 1.44rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .next-btn:active { background-color: #15803d; }
@@ -100,7 +100,7 @@
           <div class="question-text" id="qText">題目載入中...</div>
           <div class="options-grid" id="qOptions"></div>
           
-          <!-- 答案說明區塊（已移除「答題解析」字樣） -->
+          <!-- 說明區塊 -->
           <div class="explanation-box" id="explanationBox">
             <span id="explanationText"></span>
           </div>
@@ -128,71 +128,70 @@
     function playWin() { if (!audioCtx) return; const notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.1; g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.3); }); }
     function playLose() { if (!audioCtx) return; const notes = [300, 250]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.2; g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.25); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.25); }); }
 
-    // 《培力中心8題題庫.csv》完整題目與說明
+    // 更新為上傳的最新題庫
     const gameData = [
       {
-        "label": "旗艦計畫",
+        "label": "贏地小秘密",
         "color": "#f87171",
-        "q": "請問衛福部福利化社區旗艦型計畫中將參與社區分為哪兩類？",
-        "options": ["火車頭社區與火車廂社區", "飛機社區與飛船社區", "領航社區與協力社區", "太空社區與地球社區", "大船社區與小船社區"],
-        "ans": 2,
-        "explanation": "輔導社區申請並執行「大旗艦」計畫是臺南市社區永續培力中心每年重要的工作項目之一。我們藉由社工與專業輔導老師的陪伴，與社區夥伴一起從共識凝聚、計畫書撰寫、計畫執行。 協助計畫中經驗豐富的「領航社區」帶領能量發展中的「協力社區」，攜手合作帶動在地福利發展！"
+        "q": "請問贏地創新育成基地有提供哪些創業相關服務？",
+        "options": [
+          "創業諮詢輔導",
+          "開放式討論區",
+          "團隊進駐空間",
+          "以上皆是"
+        ],
+        "ans": 3,
+        "explanation": "贏地創新育成基地提供臺南市新創團隊進駐空間申請、開放式討論區借用、創業諮詢輔導等多元創業輔導。聯絡方式：電話：06-6336777 電子郵件：winwin.tainan@gmail.com"
       },
       {
-        "label": "培力工作",
+        "label": "贏地小秘密",
         "color": "#fb923c",
-        "q": "下列何者不是臺南市社區永續培力中心的服務對象？",
-        "options": ["各區公所社區發展業務承辦人", "社會局人團科", "臺南市各社區發展協會", "國家太空中心"],
-        "ans": 3,
-        "explanation": "我們的服務工作包含舉辦社區培力課程、社區發展協會輔導、區公所社區業務承辦交流工作坊及增能工作坊等。此外也與社會局人團科配合，推動社區發展業務。"
+        "q": "請問贏地創新育成中心位在臺南哪一區？",
+        "options": [
+          "新營區",
+          "舊營區",
+          "上營區",
+          "下營區"
+        ],
+        "ans": 0,
+        "explanation": "臺南市創新育成基地位於臺南市新營區民治路38號，交通方便，停車也好停喔！"
       },
       {
-        "label": "福利服務",
+        "label": "贏地小秘密",
         "color": "#facc15",
-        "q": "請問以下何者是臺南的婦女福利服務中心？",
-        "options": ["曾文婦女福利服務中心", "南瀛婦女福利服務中心", "玉井婦女福利服務中心", "永華婦女福利服務中心", "以上皆是"],
-        "ans": 4,
-        "explanation": "為協助社區能連結多元組織，提供給社區更豐富的資源。我們也會在培力課程中介紹各類型的社福資源。例如位在贏地對面的臺南市婦女福利服務中心就是我們的合作好夥伴之一。"
+        "q": "請問贏地創新育成中心是隸屬於臺南市政府那個局處？",
+        "options": [
+          "經濟發展局",
+          "交通局",
+          "社會局",
+          "衛生局"
+        ],
+        "ans": 0,
+        "explanation": "贏地創新育成基地隸屬於臺南市經濟發展局，目前委託齊優空間股份有限公司管理。聯絡方式：電話：06-6336777 電子郵件：winwin.tainan@gmail.com"
       },
       {
-        "label": "社區培力",
+        "label": "贏地小秘密",
         "color": "#4ade80",
-        "q": "請問下列何者是臺南市社區永續培力中心的承辦單位？",
-        "options": ["臺灣全球社會力永續發展協會", "地球大聖人協會", "宇宙大聖人協會"],
-        "ans": 0,
-        "explanation": "115年度起臺南市社區永續培力中心（溪北區）是由「臺灣全球社會力永續發展協會」接受委託辦理。。臺南市社會局將「臺南市社區永續培力中心」分為溪北與溪南兩區，讓溪北地區的社區發展協會能夠就近使用輔導資源。使培力中心的服務更在地。"
-      },
-      {
-        "label": "社區會務",
-        "color": "#38bdf8",
-        "q": "請問下列何者「不」是社區發展協會每年必開的會議？",
-        "options": ["會員大會", "理、監事會", "跨年演唱會"],
+        "q": "請問贏地創新育成中心目前是委託哪個單位管理？",
+        "options": [
+          "特優空間股份有限公司管理",
+          "超優空間股份有限公司管理",
+          "齊優空間股份有限公司管理"
+        ],
         "ans": 2,
-        "explanation": "協助社區發展協會的會務運作是本中心的重要工作之一。依據社區發展協會組織法規，每年必須定期召開「會員大會」與「理、監事會議」來維繫健全會務。"
+        "explanation": "贏地創新育成中心目前委託齊優空間股份有限公司管理。聯絡方式：電話：06-6336777 電子郵件：winwin.tainan@gmail.com"
       },
       {
-        "label": "福利社區化",
-        "color": "#818cf8",
-        "q": "請問下列哪一區「不是」臺南市社區永續培力中心（溪北區）的服務區域",
-        "options": ["新營區", "白河區", "學甲區", "七股區", "大安區"],
-        "ans": 4,
-        "explanation": "臺南市社區永續培力中心（溪北區）的服務區域主要為臺南市溪北的17個行政區。年度會針對溪北區的各社區發展協會舉辦多場培力課程。為促進臺南市社區發展與培力，課程也歡迎溪南地區的各社區發展協會共同參與。"
-      },
-      {
-        "label": "培力中心介紹",
-        "color": "#c084fc",
-        "q": "請問臺南市社區永續培力中心（溪北區）的辦公室在？",
-        "options": ["飛地創新育成中心", "高地創新育成中心", "濕地創新育成中心", "贏地創新育成中心", "輸地創新育成中心"],
-        "ans": 3,
-        "explanation": "臺南市社區永續培力中心（溪北區）的辦公室於115年度起進駐「贏地創新育成中心」。贏地創新育成中心有著便利的交通與設備齊全的活動空間，方便溪北區的各社區夥伴參加培力課程。我們也期待社區夥伴到此上課時，能藉此更認識這個空間與資源。"
-      },
-      {
-        "label": "培力中心介紹",
-        "color": "#f472b6",
-        "q": "請問臺南市社區永續培力中心（溪北區）的工作人員有幾位？",
-        "options": ["3位", "30位", "300位"],
+        "label": "贏地小秘密",
+        "color": "#38bdf8",
+        "q": "請問本攤位是哪個單位？",
+        "options": [
+          "臺灣全球社會力永續展協會",
+          "台灣宇宙社會力永續發展協會",
+          "台灣在地社會力永續發展協會"
+        ],
         "ans": 0,
-        "explanation": "本中心編制有專職1位督導、2位社工。"
+        "explanation": "臺灣全球社會力永續發展協會於112年11月立案，致力於社會發展與培力。單位透過推行研究計畫、編譯書籍、深化地方文化，並與各級政府機構及國內外單位合作，辦理社區營造、地方創生、福利照顧等社會服務方案、研習與諮詢，推動實務交流與跨界協作。"
       }
     ];
 
@@ -207,7 +206,7 @@
     const canvas = document.getElementById("wheelCanvas"); 
     const ctx = canvas.getContext("2d");
 
-    // 繪製 1.5 倍尺寸的輪盤扇形與文字
+    // 繪製輪盤
     function drawWheel() {
       const numSectors = gameData.length; 
       const arc = (2 * Math.PI) / numSectors; 
@@ -233,7 +232,6 @@
         ctx.rotate(angle + arc / 2); 
         ctx.textAlign = "right"; 
         ctx.fillStyle = askedSectors.includes(i) ? "#6b7280" : "#ffffff"; 
-        // 文字字體加大 1.5 倍 (22px -> 33px)
         ctx.font = "bold 33px PingFang TC, Microsoft JhengHei, sans-serif"; 
         ctx.shadowColor = "rgba(0,0,0,0.3)"; 
         ctx.shadowBlur = 4; 
