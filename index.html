@@ -8,7 +8,6 @@
     * { box-sizing: border-box; user-select: none; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: linear-gradient(135deg, #f0fdf4 0%, #fef3c7 100%); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
     
-    /* 標題與字體改為 1.5 倍大小 */
     header { background: #ffffff; padding: 20px 35px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); z-index: 10; }
     header h1 { margin: 0; font-size: 2.7rem; color: #166534; font-weight: bold; }
     .game-stats { display: flex; gap: 25px; font-size: 2rem; font-weight: bold; }
@@ -17,30 +16,35 @@
     
     main { flex: 1; display: flex; flex-direction: row; width: 100%; position: relative; }
     
-    .left-panel { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 2px dashed #cbd5e1; position: relative; padding: 20px; }
-    .wheel-container { position: relative; width: 460px; height: 460px; }
+    /* 左側轉盤區域：放大為原先 1.5 倍 (460px -> 690px) */
+    .left-panel { flex: 1.2; display: flex; align-items: center; justify-content: center; border-right: 2px dashed #cbd5e1; position: relative; padding: 20px; }
+    .wheel-container { position: relative; width: 690px; height: 690px; }
     canvas#wheelCanvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
-    .pointer { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 22px solid transparent; border-right: 22px solid transparent; border-top: 44px solid #dc2626; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+    .pointer { position: absolute; top: -33px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 33px solid transparent; border-right: 33px solid transparent; border-top: 66px solid #dc2626; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
     
-    .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 105px; height: 105px; background: #dc2626; color: #fff; font-size: 2.4rem; font-weight: bold; border-radius: 50%; border: 7px solid #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 12; }
+    .spin-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 158px; height: 158px; background: #dc2626; color: #fff; font-size: 3.6rem; font-weight: bold; border-radius: 50%; border: 10px solid #fff; box-shadow: 0 6px 15px rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 12; }
     .spin-btn.disabled { background: #9ca3af; cursor: not-allowed; }
 
-    .right-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .quiz-card { background: #ffffff; width: 100%; max-width: 650px; min-height: 420px; border-radius: 22px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; }
-    .quiz-state-empty { text-align: center; color: #6b7280; font-size: 2.4rem; font-weight: bold; margin: auto; line-height: 1.5; }
+    /* 右側題目區域：縮小為原先 0.8 倍 */
+    .right-panel { flex: 0.8; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .quiz-card { background: #ffffff; width: 100%; max-width: 600px; min-height: 420px; border-radius: 22px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center; }
+    .quiz-state-empty { text-align: center; color: #6b7280; font-size: 2rem; font-weight: bold; margin: auto; line-height: 1.5; }
     .quiz-state-active { display: none; }
-    .category-badge { display: inline-block; padding: 6px 18px; font-size: 1.65rem; font-weight: bold; color: #fff; border-radius: 35px; margin-bottom: 16px; align-self: flex-start; }
-    .question-text { font-size: 2.1rem; color: #1f2937; margin-bottom: 20px; line-height: 1.4; font-weight: bold; }
-    .options-grid { display: flex; flex-direction: column; gap: 12px; }
+    .category-badge { display: inline-block; padding: 5px 15px; font-size: 1.32rem; font-weight: bold; color: #fff; border-radius: 35px; margin-bottom: 14px; align-self: flex-start; }
     
-    .option-btn { background: #f3f4f6; border: 3px solid #e5e7eb; border-radius: 14px; font-size: 1.65rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; padding: 15px 18px; transition: background 0.2s; }
+    /* 題目文字：原 2.1rem * 0.8 = 1.68rem */
+    .question-text { font-size: 1.68rem; color: #1f2937; margin-bottom: 16px; line-height: 1.4; font-weight: bold; }
+    .options-grid { display: flex; flex-direction: column; gap: 10px; }
+    
+    /* 選項按鈕：原 1.65rem * 0.8 = 1.32rem */
+    .option-btn { background: #f3f4f6; border: 2.5px solid #e5e7eb; border-radius: 12px; font-size: 1.32rem; color: #374151; font-weight: bold; cursor: pointer; text-align: left; padding: 12px 15px; transition: background 0.2s; }
     .option-btn:active { background: #e5e7eb; }
     .option-btn.correct { background: #dcfce7; border-color: #22c55e; color: #166534; }
     .option-btn.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
 
-    /* 說明與按鈕 1.5 倍大小 */
-    .explanation-box { display: none; margin-top: 20px; padding: 20px; background-color: #f0f9ff; border-left: 6px solid #0284c7; border-radius: 10px; color: #0369a1; font-size: 1.6rem; line-height: 1.5; }
-    .next-btn { display: none; margin-top: 20px; width: 100%; padding: 16px; background-color: #16a34a; color: #ffffff; border: none; border-radius: 14px; font-size: 1.8rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    /* 說明區塊：原 1.6rem * 0.8 = 1.28rem */
+    .explanation-box { display: none; margin-top: 16px; padding: 16px; background-color: #f0f9ff; border-left: 5px solid #0284c7; border-radius: 10px; color: #0369a1; font-size: 1.28rem; line-height: 1.5; }
+    .next-btn { display: none; margin-top: 16px; width: 100%; padding: 14px; background-color: #16a34a; color: #ffffff; border: none; border-radius: 12px; font-size: 1.44rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .next-btn:active { background-color: #15803d; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
@@ -50,20 +54,20 @@
     .final-banner { font-size: 2.5rem; color: #ea580c; font-weight: bold; margin: 25px 0; }
     .restart-btn { background: #2563eb; color: #fff; border: none; padding: 16px 30px; font-size: 1.8rem; font-weight: bold; border-radius: 16px; cursor: pointer; margin-top: 15px; width: 100%; }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       header { flex-direction: column; gap: 10px; padding: 12px; text-align: center; }
       header h1 { font-size: 1.8rem; }
       .game-stats { gap: 12px; font-size: 1.3rem; width: 100%; justify-content: center; }
       main { flex-direction: column; }
       .left-panel { border-right: none; border-bottom: 2px dashed #cbd5e1; padding: 15px; }
-      .wheel-container { width: 300px; height: 300px; }
-      .spin-btn { width: 80px; height: 80px; font-size: 1.6rem; }
+      .wheel-container { width: 360px; height: 360px; }
+      .spin-btn { width: 85px; height: 85px; font-size: 2rem; }
       .quiz-card { padding: 20px; min-height: auto; }
-      .question-text { font-size: 1.5rem; }
-      .option-btn { font-size: 1.3rem; padding: 12px; }
-      .category-badge { font-size: 1.2rem; }
-      .explanation-box { font-size: 1.2rem; }
-      .next-btn { font-size: 1.4rem; padding: 12px; }
+      .question-text { font-size: 1.4rem; }
+      .option-btn { font-size: 1.2rem; padding: 10px; }
+      .category-badge { font-size: 1.1rem; }
+      .explanation-box { font-size: 1.1rem; }
+      .next-btn { font-size: 1.3rem; padding: 12px; }
       .modal-title { font-size: 2rem; }
       .final-banner { font-size: 1.8rem; }
       .restart-btn { font-size: 1.4rem; padding: 12px; }
@@ -83,7 +87,7 @@
     <div class="left-panel">
       <div class="wheel-container">
         <div class="pointer"></div>
-        <canvas id="wheelCanvas" width="460" height="460"></canvas>
+        <canvas id="wheelCanvas" width="690" height="690"></canvas>
         <div class="spin-btn" id="spinBtn">轉！</div>
       </div>
     </div>
@@ -96,9 +100,9 @@
           <div class="question-text" id="qText">題目載入中...</div>
           <div class="options-grid" id="qOptions"></div>
           
-          <!-- 答案說明區塊 -->
+          <!-- 答案說明區塊（已移除「答題解析」字樣） -->
           <div class="explanation-box" id="explanationBox">
-            💡 <strong>答題解析：</strong><br><span id="explanationText"></span>
+            <span id="explanationText"></span>
           </div>
           <!-- 下一題按鈕 -->
           <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一題 ➔</button>
@@ -107,7 +111,7 @@
     </div>
   </main>
 
-  <!-- 遊戲結束結算彈窗 (顯示：遊戲結束～請抽獎～) -->
+  <!-- 遊戲結束結算彈窗 -->
   <div class="modal-overlay" id="gameOverModal">
     <div class="modal-card">
       <div class="modal-title">🎉 挑戰完成 🎉</div>
@@ -124,7 +128,7 @@
     function playWin() { if (!audioCtx) return; const notes = [523.25, 659.25, 783.99, 1046.50]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.1; g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.3); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.3); }); }
     function playLose() { if (!audioCtx) return; const notes = [300, 250]; notes.forEach((f, i) => { const osc = audioCtx.createOscillator(); const g = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.value = f; const t = audioCtx.currentTime + i * 0.2; g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.01, t + 0.25); osc.connect(g); g.connect(audioCtx.destination); osc.start(t); osc.stop(t + 0.25); }); }
 
-    // 匯入《培力中心8題題庫.csv》完整題目與解析
+    // 《培力中心8題題庫.csv》完整題目與說明
     const gameData = [
       {
         "label": "旗艦計畫",
@@ -203,6 +207,7 @@
     const canvas = document.getElementById("wheelCanvas"); 
     const ctx = canvas.getContext("2d");
 
+    // 繪製 1.5 倍尺寸的輪盤扇形與文字
     function drawWheel() {
       const numSectors = gameData.length; 
       const arc = (2 * Math.PI) / numSectors; 
@@ -215,11 +220,11 @@
         ctx.beginPath(); 
         ctx.fillStyle = askedSectors.includes(i) ? "#d1d5db" : (gameData[i].color || "#9ca3af"); 
         ctx.moveTo(radius, radius); 
-        ctx.arc(radius, radius, radius - 10, angle, angle + arc); 
+        ctx.arc(radius, radius, radius - 15, angle, angle + arc); 
         ctx.lineTo(radius, radius); 
         ctx.fill();
         
-        ctx.lineWidth = 3; 
+        ctx.lineWidth = 4; 
         ctx.strokeStyle = "#ffffff"; 
         ctx.stroke();
         
@@ -228,15 +233,15 @@
         ctx.rotate(angle + arc / 2); 
         ctx.textAlign = "right"; 
         ctx.fillStyle = askedSectors.includes(i) ? "#6b7280" : "#ffffff"; 
-        ctx.font = "bold 22px PingFang TC, Microsoft JhengHei, sans-serif"; 
+        // 文字字體加大 1.5 倍 (22px -> 33px)
+        ctx.font = "bold 33px PingFang TC, Microsoft JhengHei, sans-serif"; 
         ctx.shadowColor = "rgba(0,0,0,0.3)"; 
         ctx.shadowBlur = 4; 
-        ctx.fillText(gameData[i].label, radius - 35, 8); 
+        ctx.fillText(gameData[i].label, radius - 50, 12); 
         ctx.restore();
       }
     }
 
-    // 確保頁面完全載入後渲染轉盤
     window.onload = function() {
       drawWheel();
     };
@@ -328,7 +333,7 @@
         optionsContainer.appendChild(btn);
       });
 
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth <= 900) {
         setTimeout(() => { document.getElementById("quizSection").scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
       }
     }
@@ -351,14 +356,14 @@
       document.getElementById("explanationBox").style.display = "block";
       document.getElementById("nextBtn").style.display = "block";
 
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth <= 900) {
         setTimeout(() => { document.getElementById("nextBtn").scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 200);
       }
     }
 
     function nextQuestion() {
       isAnswering = false;
-      if (window.innerWidth <= 768) window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (window.innerWidth <= 900) window.scrollTo({ top: 0, behavior: 'smooth' });
 
       if (spinsLeft > 0) { 
         document.getElementById("quizActiveState").style.display = "none"; 
